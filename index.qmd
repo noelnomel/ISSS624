@@ -1,0 +1,7 @@
+---
+title: "ISSS624"
+---
+
+Welcome to ISSS624 Geospatial Analytics Application!
+
+I will share with you usemy learning journey in Geospatial Analytics in this webpage :)
