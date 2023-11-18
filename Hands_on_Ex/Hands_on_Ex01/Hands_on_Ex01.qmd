@@ -2,7 +2,7 @@
 title: "Hands-on Exercise 1"
 ---
 
-## Overview 
+## Overview
 
 This is the overview paragraph.
 

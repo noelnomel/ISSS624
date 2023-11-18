@@ -1,0 +1,67 @@
+---
+title: "In-Class Exercise 1"
+date: "18 November 2023"
+date-modified: "last-modified"
+format: html
+execute: 
+  echo: true # all code chunks will appear
+  eval: true # all code chunks will run live
+  warning: false # do not display warning message
+editor: visual
+---
+
+## Getting Started
+
+This is the code chunk to load the following packages and purposes:
+
+-   tmap: thematic mapping
+-   sf: geospatial data handling
+-   tidyverse: non-spatial data handling
+
+```{r}
+pacman::p_load(tmap, sf, tidyverse)
+```
+
+## Preparing Data Flow
+
+### Importing the OD Data
+
+Firstly, we will import the dataset *Passenger Volume by Origin Destination Bus Stops downloaded from LTA DataMall* by using read_csv() of **readr** package.
+
+```{r}
+odbus <- read.csv("data/aspatial/origin_destination_bus_202308.csv")
+```
+
+A quick check of the odbus tibble data frame shows that the values in ORIGIN_PT_CODE and DESTINATION_PT_CODE are in numeric data type.
+
+```{r}
+odbus$ORIGIN_PT_CODE <-
+  as.factor(odbus$ORIGIN_PT_CODE) 
+odbus$DESTINATION_PT_CODE <-
+  as.factor(odbus$DESTINATION_PT_CODE)
+```
+
+
+Finding the number of trips taken between 7 and 10 am on weekdays.
+```{r}
+origtrip_7_9 <- odbus %>%
+  filter(DAY_TYPE=='WEEKDAY') %>%
+  filter(TIME_PER_HOUR >= 7 &
+          TIME_PER_HOUR <= 9) %>%
+  group_by(ORIGIN_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+```
+
+
+```{r}
+busstop <- st_read(dsn="data/geospatial",
+                   layer = "BusStop") %>%
+  st_transform(crs=3414)
+```
+
+```{r}
+mpsz <- st_read(dsn="data/geospatial",
+                   layer = "MPSZ-2019") %>%
+  st_transform(crs=3414)
+mpsz
+```
