@@ -41,8 +41,8 @@ odbus$DESTINATION_PT_CODE <-
   as.factor(odbus$DESTINATION_PT_CODE)
 ```
 
-
 Finding the number of trips taken between 7 and 10 am on weekdays.
+
 ```{r}
 origtrip_7_9 <- odbus %>%
   filter(DAY_TYPE=='WEEKDAY') %>%
@@ -51,7 +51,6 @@ origtrip_7_9 <- odbus %>%
   group_by(ORIGIN_PT_CODE) %>%
   summarise(TRIPS = sum(TOTAL_TRIPS))
 ```
-
 
 ```{r}
 busstop <- st_read(dsn="data/geospatial",
