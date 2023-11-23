@@ -10,29 +10,34 @@ execute:
 editor: visual
 ---
 
-## Getting Started
+## 1. Getting Started
 
-This is the code chunk to load the following packages and purposes:
+The following packages will be used in this in-class exercise, and they are loaded into R using the following code:
 
--   tmap: thematic mapping
--   sf: geospatial data handling
--   tidyverse: non-spatial data handling
+-   `tmap`: thematic mapping
+-   `sf`: geospatial data handling
+-   `tidyverse`: non-spatial data handling
+-   `knitr`: for creating html table
 
 ```{r}
 pacman::p_load(tmap, sf, tidyverse)
 ```
 
-## Preparing Data Flow
+## 2. Importing Origin Destination Data
 
-### Importing the OD Data
-
-Firstly, we will import the dataset *Passenger Volume by Origin Destination Bus Stops downloaded from LTA DataMall* by using read_csv() of **readr** package.
+Firstly, we will import the dataset *Passenger Volume by Origin Destination Bus Stops* downloaded from LTA DataMall by using `read_csv()` of `readr` package.
 
 ```{r}
 odbus <- read.csv("data/aspatial/origin_destination_bus_202308.csv")
 ```
 
-A quick check of the odbus tibble data frame shows that the values in ORIGIN_PT_CODE and DESTINATION_PT_CODE are in numeric data type.
+A quick check of the `odbus` tibble data frame shows that the values in ORIGIN_PT_CODE and DESTINATION_PT_CODE are in numeric data type.
+
+```{r}
+glimpse(odbus)
+```
+
+We will use the `as.factor()` function from the `tidyverse` package to convert these codes from numeric to factor data type:
 
 ```{r}
 odbus$ORIGIN_PT_CODE <-
@@ -41,11 +46,19 @@ odbus$DESTINATION_PT_CODE <-
   as.factor(odbus$DESTINATION_PT_CODE)
 ```
 
-Finding the number of trips taken between 7 and 10 am on weekdays.
+To confirm that the data types are converted successfully:
 
 ```{r}
-origtrip_7_9 <- odbus %>%
-  filter(DAY_TYPE=='WEEKDAY') %>%
+glimpse(odbus)
+```
+
+## 3. Extracting Study Data
+
+For this exercise, we will extract commuting flows on weekdays between between 7 and 10 am:
+
+```{r}
+origin7_9 <- odbus %>%
+  filter(DAY_TYPE == 'WEEKDAY') %>%
   filter(TIME_PER_HOUR >= 7 &
           TIME_PER_HOUR <= 9) %>%
   group_by(ORIGIN_PT_CODE) %>%
@@ -53,14 +66,131 @@ origtrip_7_9 <- odbus %>%
 ```
 
 ```{r}
+head(origin7_9)
+```
+
+We will save the output in rds format for future use:
+
+```{r}
+write_rds(origin7_9, "data/rds/origin7_9.rds")
+```
+
+We can then import the rds file into the R environment:
+
+```{r}
+origin7_9 <- read_rds("data/rds/origin7_9.rds")
+```
+
+## 4. Working with Geospatial Data
+
+We will import two shapefile into RStudio:
+
+1.  BusStop: This data provides the location of bus stops as of Q42022.
+
+2.  MPSZ-2019: This data provides the subzone boundaries defined in the URA Master Plan 2019.
+
+### 4.1. Importing Geospatial Data
+
+We will use the following code to import the BusStop data downloaded from LTA DataMall:
+
+```{r}
 busstop <- st_read(dsn="data/geospatial",
                    layer = "BusStop") %>%
   st_transform(crs=3414)
 ```
 
+We can confirm that the import was done correctly by using this code:
+
 ```{r}
-mpsz <- st_read(dsn="data/geospatial",
+glimpse(busstop)
+```
+
+Next, we will use the following code to import the MPSZ-2019 data downloaded from data.gov.sg:
+
+```{r}
+mpsz2019 <- st_read(dsn="data/geospatial",
                    layer = "MPSZ-2019") %>%
   st_transform(crs=3414)
-mpsz
+```
+
+We can confirm that the import was done correctly by using this code:
+
+```{r}
+glimpse(mpsz2019)
+```
+
+## 5. Geospatial Data Wrangling
+
+### 5.1. Combining `busstop` and `mpsz2019`
+
+We will use the following code to populate planning subzone code from the `mpsz2019` data frame into the `busstop` simple features data frame:
+
+```{r}
+busstop_mpsz2019 <- st_intersection(busstop, mpsz2019) %>%
+  select(BUS_STOP_N, SUBZONE_C) %>%
+  st_drop_geometry()
+```
+
+We will save the output data into rds format for future use:
+
+```{r}
+write_rds(busstop_mpsz2019, "data/rds/busstop_mpsz2019.rds")
+```
+
+Next, we will join the planning subzone code from the `busstop_mpsz2019` data frame to the `odbus7_9` data frame:
+
+```{r}
+origin_data <- left_join(origin7_9, busstop_mpsz2019,
+                         by = c('ORIGIN_PT_CODE' = 'BUS_STOP_N')) %>%
+  rename(ORIGIN_BS = ORIGIN_PT_CODE,
+         ORIGIN_SZ = SUBZONE_C)
+```
+
+We will now check for duplicates:
+
+```{r}
+duplicates <- origin_data %>%
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+```
+
+```{r}
+glimpse(duplicates)
+```
+
+And retain each unique record:
+
+```{r}
+origin_data <- unique(origin_data)
+```
+
+Next, we will update the `origin_data` with planning subzone codes:
+
+```{r}
+mpsz2019_origindata <- left_join(mpsz2019, origin_data,
+                                by = c("SUBZONE_C" = "ORIGIN_SZ"))
+```
+
+```{r}
+glimpse(mpsz2019_origindata)
+```
+
+## 6. Choropleth Visualisation
+
+We will now draw a choropleth map showing the distribution of passenger trips at the planning subzone level:
+
+```{r}
+tm_shape(mpsz2019_origindata) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = 'Greens',
+          title = "Passenger Trips") +
+  tm_layout(main.title = "Distirbution of Passenger Trips by Planning Subzone Level",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_borders(alpha = 0.6) +
+  tm_scale_bar() +
+  tm_credits("Source: Planning Subzone boundary from URA\n
+             Passenger trip data from LTA")
 ```
