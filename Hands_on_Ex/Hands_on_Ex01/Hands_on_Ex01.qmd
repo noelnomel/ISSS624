@@ -27,7 +27,7 @@ This webpage is created on RStudio using the quarto package. The package is inst
 For this Hands-on Exercise, the following data sets are assembled from the sources as indicated:
 
 | S/N | Name of Data Set                             | File type | Source                                                                                                                  | Extracted to (file directory) |
-|---------------|---------------|---------------|---------------|---------------|
+|-----|----------------------------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------|-------------------------------|
 | 1   | Master Plan 2014 Subzone Boundary (Web)      | SHP       | [data.gov.sg](https://data.gov.sg/)                                                                                     | /data/geospatial              |
 | 2   | Pre-Schools Location                         | KML       | [data.gov.sg](https://data.gov.sg/)                                                                                     | /data/geospatial              |
 | 3   | Cycling Path                                 | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html)                                       | /data/geospatial              |
@@ -53,7 +53,7 @@ pacman::p_load(sf,tidyverse)
 We will use the `st_read()` function from the `sf` package to import the following Geospatial data:
 
 | S/N | Name of Data Set                        | Format | Layer                 |
-|------------------|-------------------|------------------|------------------|
+|-----|-----------------------------------------|--------|-----------------------|
 | 1   | Master Plan 2014 Subzone Boundary (Web) | SHP    | Polygon feature layer |
 | 2   | Pre-Schools Location                    | SHP    | Line feature layer    |
 | 3   | Cycling Path                            | KML    | Point feature layer   |
@@ -761,7 +761,7 @@ tm_shape(mpsz_pop2020) +
   tm_borders(alpha = 0.5)
 ```
 
-#### 3.2.5.2. Map Style 
+#### 3.2.5.2. Map Style
 
 Different layout settings can be changed using `tmap_style()`. Available styles are `"classic"`, `"white"` (default), `"gray"`, `"natural"`, `"cobalt"`, `"col_blind"`, `"albatross"`, `"beaver"`, `"bw"`, `"watercolor"`, etc.
 
@@ -776,7 +776,7 @@ tm_shape(mpsz_pop2020) +
   tmap_style("classic")
 ```
 
-#### 3.2.5.3. Cartographic Furniture 
+#### 3.2.5.3. Cartographic Furniture
 
 Additional map furniture such as compass, scale bar, and grid lines may be added to the map using `tm_compass()`, `tm_scale_bar()`, and `tm_grid()` respectively:
 
@@ -818,7 +818,7 @@ Small multiples, or facet maps, can be plotted in three ways:
 
 3.  By creating multiple standalone maps with `tmap_arrange()`
 
-#### 3.2.6.1. Assigning Multiple Values to One Aesthetic Argument 
+#### 3.2.6.1. Assigning Multiple Values to One Aesthetic Argument
 
 Small multiple maps can be created by defining `ncols` in `tm_fill()`:
 
@@ -842,7 +842,7 @@ tm_shape(mpsz_pop2020) +
   tm_borders(alpha = 0.5)
 ```
 
-#### 3.2.6.2. Defining Group-by Variable in `tm_facets()` 
+#### 3.2.6.2. Defining Group-by Variable in `tm_facets()`
 
 Small multiple choropleth maps can be created using `tm_facets()`:
 
@@ -861,7 +861,7 @@ tm_shape(mpsz_pop2020) +
   tm_borders(alpha = 0.5)
 ```
 
-#### 3.2.6.2. Creating Multiple Standalone Maps with `tmap_arrange()` 
+#### 3.2.6.2. Creating Multiple Standalone Maps with `tmap_arrange()`
 
 Small multiple choropleth maps can be created using `tm_arrange()`:
 
