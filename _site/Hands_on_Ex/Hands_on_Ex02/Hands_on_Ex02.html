@@ -231,6 +231,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#compute-morans-i-correlogram" id="toc-compute-morans-i-correlogram" class="nav-link" data-scroll-target="#compute-morans-i-correlogram">2.4.1. Compute Moran’s I Correlogram</a></li>
   <li><a href="#compute-gearys-c-correlogram" id="toc-compute-gearys-c-correlogram" class="nav-link" data-scroll-target="#compute-gearys-c-correlogram">2.4.2. Compute Geary’s C Correlogram</a></li>
   </ul></li>
+  <li><a href="#cluster-and-outlier-analysis" id="toc-cluster-and-outlier-analysis" class="nav-link" data-scroll-target="#cluster-and-outlier-analysis">2.5. Cluster and Outlier Analysis</a>
+  <ul class="collapse">
+  <li><a href="#computing-local-morans-i" id="toc-computing-local-morans-i" class="nav-link" data-scroll-target="#computing-local-morans-i">2.5.1. Computing Local Moran’s I</a></li>
+  </ul></li>
+  <li><a href="#creating-a-lisa-cluster-map" id="toc-creating-a-lisa-cluster-map" class="nav-link" data-scroll-target="#creating-a-lisa-cluster-map">2.6. Creating a LISA Cluster Map</a>
+  <ul class="collapse">
+  <li><a href="#plotting-moran-scatterplot" id="toc-plotting-moran-scatterplot" class="nav-link" data-scroll-target="#plotting-moran-scatterplot">2.6.1. Plotting Moran Scatterplot</a></li>
+  <li><a href="#plotting-moran-scatterplot-with-standardised-variables" id="toc-plotting-moran-scatterplot-with-standardised-variables" class="nav-link" data-scroll-target="#plotting-moran-scatterplot-with-standardised-variables">2.6.2. Plotting Moran Scatterplot with Standardised Variables</a></li>
+  <li><a href="#preparing-lisa-map-classes" id="toc-preparing-lisa-map-classes" class="nav-link" data-scroll-target="#preparing-lisa-map-classes">2.6.3. Preparing LISA Map Classes</a></li>
+  <li><a href="#plotting-lisa-map" id="toc-plotting-lisa-map" class="nav-link" data-scroll-target="#plotting-lisa-map">2.6.4. Plotting LISA Map</a></li>
+  </ul></li>
+  <li><a href="#hot-spot-and-cold-spot-area-analysis" id="toc-hot-spot-and-cold-spot-area-analysis" class="nav-link" data-scroll-target="#hot-spot-and-cold-spot-area-analysis">2.7. Hot Spot and Cold SPot Area Analysis</a>
+  <ul class="collapse">
+  <li><a href="#getis-and-ords-g-statistics" id="toc-getis-and-ords-g-statistics" class="nav-link" data-scroll-target="#getis-and-ords-g-statistics">2.7.1. Getis and Ord’s G-Statistics</a></li>
+  <li><a href="#deriving-distance-based-weight-matrix" id="toc-deriving-distance-based-weight-matrix" class="nav-link" data-scroll-target="#deriving-distance-based-weight-matrix">2.7.2. Deriving Distance-based Weight Matrix</a></li>
+  <li><a href="#computing-adaptive-distance-weight-matrix-1" id="toc-computing-adaptive-distance-weight-matrix-1" class="nav-link" data-scroll-target="#computing-adaptive-distance-weight-matrix-1">2.7.3 Computing Adaptive Distance Weight Matrix</a></li>
+  </ul></li>
+  <li><a href="#computing-gi-statistics" id="toc-computing-gi-statistics" class="nav-link" data-scroll-target="#computing-gi-statistics">2.8. Computing Gi Statistics</a>
+  <ul class="collapse">
+  <li><a href="#gi-statistics-using-fixed-distance" id="toc-gi-statistics-using-fixed-distance" class="nav-link" data-scroll-target="#gi-statistics-using-fixed-distance">2.8.1. Gi statistics Using Fixed Distance</a></li>
+  <li><a href="#mapping-gi-values-with-fixed-disance-weights" id="toc-mapping-gi-values-with-fixed-disance-weights" class="nav-link" data-scroll-target="#mapping-gi-values-with-fixed-disance-weights">2.8.2. Mapping Gi Values with Fixed Disance Weights</a></li>
+  </ul></li>
   </ul></li>
   </ul>
 </nav>
@@ -258,7 +280,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">November 24, 2023</p>
+      <p class="date-modified">November 25, 2023</p>
     </div>
   </div>
     
@@ -1354,7 +1376,7 @@ B 88 7744 8.786867 0.3776535 3.8137</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb59"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a>lag.list <span class="ot">&lt;-</span> <span class="fu">list</span>(hunan<span class="sc">$</span>NAME_3, <span class="fu">lag.listw</span>(rswm_q, hunan<span class="sc">$</span>GDPPC))</span>
 <span id="cb59-2"><a href="#cb59-2" aria-hidden="true" tabindex="-1"></a>lag.res <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(lag.list)</span>
-<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(lag.res) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"NAME_3"</span>,<span class="st">"lag GDPPC"</span>)</span>
+<span id="cb59-3"><a href="#cb59-3" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(lag.res) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">"NAME_3"</span>,<span class="st">"lag_GDPPC"</span>)</span>
 <span id="cb59-4"><a href="#cb59-4" aria-hidden="true" tabindex="-1"></a>hunan <span class="ot">&lt;-</span> <span class="fu">left_join</span>(hunan, lag.res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
@@ -1365,7 +1387,7 @@ Geometry type: POLYGON
 Dimension:     XY
 Bounding box:  xmin: 110.4922 ymin: 28.61762 xmax: 112.3013 ymax: 30.12812
 Geodetic CRS:  WGS 84
-   NAME_2  ID_3  NAME_3   ENGTYPE_3  County GDPPC lag GDPPC
+   NAME_2  ID_3  NAME_3   ENGTYPE_3  County GDPPC lag_GDPPC
 1 Changde 21098 Anxiang      County Anxiang 23667  24847.20
 2 Changde 21100 Hanshou      County Hanshou 20981  22724.80
 3 Changde 21101  Jinshi County City  Jinshi 34592  24143.25
@@ -1384,7 +1406,7 @@ Geodetic CRS:  WGS 84
 <p>Next, we will plot the GDPPC and spatial lag GDPPC for comparison:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb62"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a href="#cb62-1" aria-hidden="true" tabindex="-1"></a>gdppc <span class="ot">&lt;-</span> <span class="fu">qtm</span>(hunan, <span class="st">"GDPPC"</span>)</span>
-<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>lag_gdppc <span class="ot">&lt;-</span> <span class="fu">qtm</span>(hunan, <span class="st">"lag GDPPC"</span>)</span>
+<span id="cb62-2"><a href="#cb62-2" aria-hidden="true" tabindex="-1"></a>lag_gdppc <span class="ot">&lt;-</span> <span class="fu">qtm</span>(hunan, <span class="st">"lag_GDPPC"</span>)</span>
 <span id="cb62-3"><a href="#cb62-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(gdppc, lag_gdppc, <span class="at">asp =</span> <span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid" width="672"></p>
@@ -1607,7 +1629,7 @@ W 88 7744 88 30.90265 357.5308</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>hunan <span class="sc">%&gt;%</span></span>
 <span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="st">"County"</span>,</span>
-<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">"lag GDPPC"</span>,</span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>         <span class="st">"lag_GDPPC"</span>,</span>
 <span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>         <span class="st">"lag_window_avg GDPPC"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
@@ -1621,7 +1643,7 @@ W 88 7744 88 30.90265 357.5308</code></pre>
 <thead>
 <tr class="header">
 <th style="text-align: left;">County</th>
-<th style="text-align: right;">lag GDPPC</th>
+<th style="text-align: right;">lag_GDPPC</th>
 <th style="text-align: right;">lag_window_avg GDPPC</th>
 <th style="text-align: left;">geometry</th>
 </tr>
@@ -3068,6 +3090,357 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </div>
 </div>
 <p>It can be observed from the plot that there is a upward trend in the autocorrelation as lag increases. From the output of the analysis report, it is observed that the autocorrelation when lag = 3, 4, and 6 is not significant at alpha 5% as the respective p-values are greater than 0.05.</p>
+</section>
+</section>
+<section id="cluster-and-outlier-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="cluster-and-outlier-analysis">2.5. Cluster and Outlier Analysis</h2>
+<p>Local Indicators of Spatial Association (LISA) evaluates the existence of clusters in the spatial arrangement of a given variable. We will apply the appropriate LISA methods to detect cluster and/or outlier from GDP Per Capita 2012 of Hunan Province.</p>
+<section id="computing-local-morans-i" class="level3">
+<h3 class="anchored" data-anchor-id="computing-local-morans-i">2.5.1. Computing Local Moran’s I</h3>
+<p>We will use the localmoran() function from spdep to compute local Moran’s I. This function computes Ii values given a set of zi values and listw object project neighbour weight information of the polygons associated with the zi values.</p>
+<p>The following code computes local Moran’s I at the county level:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb122"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb122-1"><a href="#cb122-1" aria-hidden="true" tabindex="-1"></a>fips <span class="ot">&lt;-</span> <span class="fu">order</span>(hunan<span class="sc">$</span>County)</span>
+<span id="cb122-2"><a href="#cb122-2" aria-hidden="true" tabindex="-1"></a>localMI <span class="ot">&lt;-</span> <span class="fu">localmoran</span>(hunan<span class="sc">$</span>GDPPC, rswm_q)</span>
+<span id="cb122-3"><a href="#cb122-3" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(localMI)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Ii          E.Ii       Var.Ii        Z.Ii Pr(z != E(Ii))
+1 -0.001468468 -2.815006e-05 4.723841e-04 -0.06626904      0.9471636
+2  0.025878173 -6.061953e-04 1.016664e-02  0.26266425      0.7928094
+3 -0.011987646 -5.366648e-03 1.133362e-01 -0.01966705      0.9843090
+4  0.001022468 -2.404783e-07 5.105969e-06  0.45259801      0.6508382
+5  0.014814881 -6.829362e-05 1.449949e-03  0.39085814      0.6959021
+6 -0.038793829 -3.860263e-04 6.475559e-03 -0.47728835      0.6331568</code></pre>
+</div>
+</div>
+<p>The localmoran() function returns a matrix of values with the following columns: - Ii: the local Moran’s I statistics - E.Ii: the expected local Moran statistics under randomisation hypothesis - Var.Ii: the variance of local Moran statistics under randomisation hypothesis - Z.Li: the standard deviate of local Moran statistic - Pr(): the p-value of local Moran statistic</p>
+<p>We will use the following code to list the content of the local Moran matrix:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="fu">printCoefmat</span>(<span class="fu">data.frame</span>(</span>
+<span id="cb124-2"><a href="#cb124-2" aria-hidden="true" tabindex="-1"></a>  localMI[fips,],</span>
+<span id="cb124-3"><a href="#cb124-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">row.names =</span> hunan<span class="sc">$</span>County[fips]),</span>
+<span id="cb124-4"><a href="#cb124-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">check.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                       Ii        E.Ii      Var.Ii        Z.Ii Pr.z....E.Ii..
+Anhua         -2.2493e-02 -5.0048e-03  5.8235e-02 -7.2467e-02         0.9422
+Anren         -3.9932e-01 -7.0111e-03  7.0348e-02 -1.4791e+00         0.1391
+Anxiang       -1.4685e-03 -2.8150e-05  4.7238e-04 -6.6269e-02         0.9472
+Baojing        3.4737e-01 -5.0089e-03  8.3636e-02  1.2185e+00         0.2230
+Chaling        2.0559e-02 -9.6812e-04  2.7711e-02  1.2932e-01         0.8971
+Changning     -2.9868e-05 -9.0010e-09  1.5105e-07 -7.6828e-02         0.9388
+Changsha       4.9022e+00 -2.1348e-01  2.3194e+00  3.3590e+00         0.0008
+Chengbu        7.3725e-01 -1.0534e-02  2.2132e-01  1.5895e+00         0.1119
+Chenxi         1.4544e-01 -2.8156e-03  4.7116e-02  6.8299e-01         0.4946
+Cili           7.3176e-02 -1.6747e-03  4.7902e-02  3.4200e-01         0.7324
+Dao            2.1420e-01 -2.0824e-03  4.4123e-02  1.0297e+00         0.3032
+Dongan         1.5210e-01 -6.3485e-04  1.3471e-02  1.3159e+00         0.1882
+Dongkou        5.2918e-01 -6.4461e-03  1.0748e-01  1.6338e+00         0.1023
+Fenghuang      1.8013e-01 -6.2832e-03  1.3257e-01  5.1198e-01         0.6087
+Guidong       -5.9160e-01 -1.3086e-02  3.7003e-01 -9.5104e-01         0.3416
+Guiyang        1.8240e-01 -3.6908e-03  3.2610e-02  1.0305e+00         0.3028
+Guzhang        2.8466e-01 -8.5054e-03  1.4152e-01  7.7931e-01         0.4358
+Hanshou        2.5878e-02 -6.0620e-04  1.0167e-02  2.6266e-01         0.7928
+Hengdong       9.9964e-03 -4.9063e-04  6.7742e-03  1.2742e-01         0.8986
+Hengnan        2.8064e-02 -3.2160e-04  3.7597e-03  4.6294e-01         0.6434
+Hengshan      -5.8201e-03 -3.0437e-05  5.1076e-04 -2.5618e-01         0.7978
+Hengyang       6.2997e-02 -1.3046e-03  2.1865e-02  4.3486e-01         0.6637
+Hongjiang      1.8790e-01 -2.3019e-03  3.1725e-02  1.0678e+00         0.2856
+Huarong       -1.5389e-02 -1.8667e-03  8.1030e-02 -4.7503e-02         0.9621
+Huayuan        8.3772e-02 -8.5569e-04  2.4495e-02  5.4072e-01         0.5887
+Huitong        2.5997e-01 -5.2447e-03  1.1077e-01  7.9685e-01         0.4255
+Jiahe         -1.2431e-01 -3.0550e-03  5.1111e-02 -5.3633e-01         0.5917
+Jianghua       2.8651e-01 -3.8280e-03  8.0968e-02  1.0204e+00         0.3076
+Jiangyong      2.4337e-01 -2.7082e-03  1.1746e-01  7.1800e-01         0.4728
+Jingzhou       1.8270e-01 -8.5106e-04  2.4363e-02  1.1759e+00         0.2396
+Jinshi        -1.1988e-02 -5.3666e-03  1.1334e-01 -1.9667e-02         0.9843
+Jishou        -2.8680e-01 -2.6305e-03  4.4028e-02 -1.3543e+00         0.1756
+Lanshan        6.3334e-02 -9.6365e-04  2.0441e-02  4.4972e-01         0.6529
+Leiyang        1.1581e-02 -1.4948e-04  2.5082e-03  2.3422e-01         0.8148
+Lengshuijiang -1.7903e+00 -8.2129e-02  2.1598e+00 -1.1623e+00         0.2451
+Li             1.0225e-03 -2.4048e-07  5.1060e-06  4.5260e-01         0.6508
+Lianyuan      -1.4672e-01 -1.8983e-03  1.9145e-02 -1.0467e+00         0.2952
+Liling         1.3774e+00 -1.5097e-02  4.2601e-01  2.1335e+00         0.0329
+Linli          1.4815e-02 -6.8294e-05  1.4499e-03  3.9086e-01         0.6959
+Linwu         -2.4621e-03 -9.0703e-06  1.9258e-04 -1.7676e-01         0.8597
+Linxiang       6.5904e-02 -2.9028e-03  2.5470e-01  1.3634e-01         0.8916
+Liuyang        3.3688e+00 -7.7502e-02  1.5180e+00  2.7972e+00         0.0052
+Longhui        8.0801e-01 -1.1377e-02  1.5538e-01  2.0787e+00         0.0376
+Longshan       7.5663e-01 -1.1100e-02  3.1449e-01  1.3690e+00         0.1710
+Luxi           1.8177e-01 -2.4855e-03  3.4249e-02  9.9561e-01         0.3194
+Mayang         2.1852e-01 -5.8773e-03  9.8049e-02  7.1663e-01         0.4736
+Miluo          1.8704e+00 -1.6927e-02  2.7925e-01  3.5715e+00         0.0004
+Nan           -9.5789e-03 -4.9497e-04  6.8341e-03 -1.0988e-01         0.9125
+Ningxiang      1.5607e+00 -7.3878e-02  8.0012e-01  1.8274e+00         0.0676
+Ningyuan       2.0910e-01 -7.0884e-03  8.2306e-02  7.5356e-01         0.4511
+Pingjiang     -9.8964e-01 -2.6457e-03  5.6027e-02 -4.1698e+00         0.0000
+Qidong         1.1806e-01 -2.1207e-03  2.4747e-02  7.6396e-01         0.4449
+Qiyang         6.1966e-02 -7.3374e-04  8.5743e-03  6.7712e-01         0.4983
+Rucheng       -3.6992e-01 -8.8999e-03  2.5272e-01 -7.1814e-01         0.4727
+Sangzhi        2.5053e-01 -4.9470e-03  6.8000e-02  9.7972e-01         0.3272
+Shaodong      -3.2659e-02 -3.6592e-05  5.0546e-04 -1.4510e+00         0.1468
+Shaoshan       2.1223e+00 -5.0227e-02  1.3668e+00  1.8583e+00         0.0631
+Shaoyang       5.9499e-01 -1.1253e-02  1.3012e-01  1.6807e+00         0.0928
+Shimen        -3.8794e-02 -3.8603e-04  6.4756e-03 -4.7729e-01         0.6332
+Shuangfeng     9.2835e-03 -2.2867e-03  3.1516e-02  6.5174e-02         0.9480
+Shuangpai      8.0591e-02 -3.1366e-04  8.9838e-03  8.5358e-01         0.3933
+Suining        3.7585e-01 -3.5933e-03  4.1870e-02  1.8544e+00         0.0637
+Taojiang      -2.5394e-01 -1.2395e-03  1.4477e-02 -2.1002e+00         0.0357
+Taoyuan        1.4729e-02 -1.2039e-04  8.5103e-04  5.0903e-01         0.6107
+Tongdao        4.6482e-01 -6.9870e-03  1.9879e-01  1.0582e+00         0.2900
+Wangcheng      4.4220e+00 -1.1067e-01  1.3596e+00  3.8873e+00         0.0001
+Wugang         7.1003e-01 -7.8144e-03  1.0710e-01  2.1935e+00         0.0283
+Xiangtan       2.4530e-01 -3.6457e-04  3.2319e-03  4.3213e+00         0.0000
+Xiangxiang     2.6271e-01 -1.2703e-03  2.1290e-02  1.8092e+00         0.0704
+Xiangyin       5.4525e-01 -4.7442e-03  7.9236e-02  1.9539e+00         0.0507
+Xinhua         1.1810e-01 -6.2649e-03  8.6001e-02  4.2409e-01         0.6715
+Xinhuang       1.5725e-01 -4.1820e-03  3.6648e-01  2.6667e-01         0.7897
+Xinning        6.8928e-01 -9.6674e-03  2.0328e-01  1.5502e+00         0.1211
+Xinshao        5.7578e-02 -8.5932e-03  1.1769e-01  1.9289e-01         0.8470
+Xintian       -7.4050e-03 -5.1493e-03  1.0877e-01 -6.8395e-03         0.9945
+Xupu           3.2406e-01 -5.7468e-03  5.7735e-02  1.3726e+00         0.1699
+Yanling       -6.9021e-02 -5.9211e-04  9.9306e-03 -6.8667e-01         0.4923
+Yizhang       -2.6844e-01 -2.2463e-03  4.7588e-02 -1.2202e+00         0.2224
+Yongshun       6.3064e-01 -1.1350e-02  1.8830e-01  1.4795e+00         0.1390
+Yongxing       4.3411e-01 -9.0735e-03  1.5088e-01  1.1409e+00         0.2539
+You            7.8750e-02 -7.2728e-03  1.2116e-01  2.4714e-01         0.8048
+Yuanjiang      2.0004e-04 -1.7760e-04  2.9798e-03  6.9181e-03         0.9945
+Yuanling       8.7298e-03 -2.2981e-06  2.3221e-05  1.8121e+00         0.0700
+Yueyang        4.1189e-02 -1.9768e-04  2.3113e-03  8.6085e-01         0.3893
+Zhijiang       1.0476e-01 -7.8123e-04  1.3100e-02  9.2214e-01         0.3565
+Zhongfang     -2.2685e-01 -2.1455e-03  3.5927e-02 -1.1855e+00         0.2358
+Zhuzhou        3.2864e-01 -5.2432e-04  7.2391e-03  3.8688e+00         0.0001
+Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</code></pre>
+</div>
+</div>
+<section id="mapping-local-morans-i" class="level4">
+<h4 class="anchored" data-anchor-id="mapping-local-morans-i">2.5.1.1. Mapping Local Moran’s I</h4>
+<p>The local Moran’s I data frame is first appended to the hunan SpatialPolygonDataFrame:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>hunan.localMI <span class="ot">&lt;-</span> <span class="fu">cbind</span>(hunan, localMI) <span class="sc">%&gt;%</span></span>
+<span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Pr.Ii =</span> Pr.z....E.Ii..)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We will use the following code to plot a choropleth map of Moran I’s values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hunan.localMI) <span class="sc">+</span> </span>
+<span id="cb127-2"><a href="#cb127-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="at">col =</span> <span class="st">"Ii"</span>,</span>
+<span id="cb127-3"><a href="#cb127-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"pretty"</span>,</span>
+<span id="cb127-4"><a href="#cb127-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"RdBu"</span>,</span>
+<span id="cb127-5"><a href="#cb127-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Local Moran Statistics"</span>) <span class="sc">+</span></span>
+<span id="cb127-6"><a href="#cb127-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-80-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We will use the following code to plot a choropleth map of Moran I’s p-values:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb128"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb128-1"><a href="#cb128-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hunan.localMI) <span class="sc">+</span> </span>
+<span id="cb128-2"><a href="#cb128-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="at">col =</span> <span class="st">"Pr.Ii"</span>,</span>
+<span id="cb128-3"><a href="#cb128-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="cn">Inf</span>),</span>
+<span id="cb128-4"><a href="#cb128-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"-Blues"</span>,</span>
+<span id="cb128-5"><a href="#cb128-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Local Moran p-values"</span>) <span class="sc">+</span></span>
+<span id="cb128-6"><a href="#cb128-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-81-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Both maps can be plotted together for easier comparison and interpretation:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a>localMI_map <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(hunan.localMI) <span class="sc">+</span></span>
+<span id="cb129-2"><a href="#cb129-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="at">col =</span> <span class="st">"Ii"</span>,</span>
+<span id="cb129-3"><a href="#cb129-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"pretty"</span>,</span>
+<span id="cb129-4"><a href="#cb129-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"RdBu"</span>,</span>
+<span id="cb129-5"><a href="#cb129-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Local Moran Statistics"</span>) <span class="sc">+</span></span>
+<span id="cb129-6"><a href="#cb129-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span>
+<span id="cb129-7"><a href="#cb129-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb129-8"><a href="#cb129-8" aria-hidden="true" tabindex="-1"></a>pvalue_map <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(hunan.localMI) <span class="sc">+</span> </span>
+<span id="cb129-9"><a href="#cb129-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="at">col =</span> <span class="st">"Pr.Ii"</span>,</span>
+<span id="cb129-10"><a href="#cb129-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">breaks =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="cn">Inf</span>, <span class="fl">0.001</span>, <span class="fl">0.01</span>, <span class="fl">0.05</span>, <span class="fl">0.1</span>, <span class="cn">Inf</span>),</span>
+<span id="cb129-11"><a href="#cb129-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"-Blues"</span>,</span>
+<span id="cb129-12"><a href="#cb129-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">title =</span> <span class="st">"Local Moran p-values"</span>) <span class="sc">+</span></span>
+<span id="cb129-13"><a href="#cb129-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span>
+<span id="cb129-14"><a href="#cb129-14" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(localMI_map, pvalue_map, <span class="at">asp =</span><span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-82-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+</section>
+<section id="creating-a-lisa-cluster-map" class="level2">
+<h2 class="anchored" data-anchor-id="creating-a-lisa-cluster-map">2.6. Creating a LISA Cluster Map</h2>
+<p>The LISA cluster map shows the significant locations colour coded by the type of spatial autocorrelation. First, we have to plot the Moran scatterplot.</p>
+<section id="plotting-moran-scatterplot" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-moran-scatterplot">2.6.1. Plotting Moran Scatterplot</h3>
+<p>The Moran scatterplot illustrates the relationship between the values of a chosen attribute at each location and the average value of the same attribute at neighbouring locations. This is done using the following code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>nci <span class="ot">&lt;-</span> <span class="fu">moran.plot</span>(hunan<span class="sc">$</span>GDPPC, rswm_q, </span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>                  <span class="at">labels =</span> <span class="fu">as.character</span>(hunan<span class="sc">$</span>County),</span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>                  <span class="at">xlab =</span> <span class="st">"GDPPC 2012"</span>,</span>
+<span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a>                  <span class="at">ylab =</span> <span class="st">"Spatially Lag GDPPC 2012"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-83-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>The plot is split into four quadrants. The top corner belongs to areas with high GDPPC and are surrounded by other areas with average levels of GDPPC.</p>
+</section>
+<section id="plotting-moran-scatterplot-with-standardised-variables" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-moran-scatterplot-with-standardised-variables">2.6.2. Plotting Moran Scatterplot with Standardised Variables</h3>
+<p>We will use the scale() function to center and scale the variable. Centering is done by subtracting the mean from the corresponding columns while scaling is done by dividing the centered variable by their standard deviations:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>Z.GDPPC <span class="ot">&lt;-</span> <span class="fu">scale</span>(hunan<span class="sc">$</span>GDPPC) <span class="sc">%&gt;%</span></span>
+<span id="cb131-2"><a href="#cb131-2" aria-hidden="true" tabindex="-1"></a>  as.vector</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Using as.vector at the end ensures that the data output is in vector format.</p>
+<p>We will plot the Moran scatterplot again using the standardised variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>nci2 <span class="ot">&lt;-</span> <span class="fu">moran.plot</span>(hunan<span class="sc">$</span>GDPPC, rswm_q,</span>
+<span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">labels =</span> <span class="fu">as.character</span>(hunan<span class="sc">$</span>County),</span>
+<span id="cb132-3"><a href="#cb132-3" aria-hidden="true" tabindex="-1"></a>                   <span class="at">xlab =</span> <span class="st">"z-GDPPC 2012"</span>,</span>
+<span id="cb132-4"><a href="#cb132-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">ylab =</span> <span class="st">"Spatially Lag z-GDPPC 2012"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-85-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="preparing-lisa-map-classes" class="level3">
+<h3 class="anchored" data-anchor-id="preparing-lisa-map-classes">2.6.3. Preparing LISA Map Classes</h3>
+<p>We will use the following code to prepare a LISA cluster map:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb133"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb133-1"><a href="#cb133-1" aria-hidden="true" tabindex="-1"></a>quadrant <span class="ot">&lt;-</span> <span class="fu">vector</span>(<span class="at">mode =</span> <span class="st">"numeric"</span>, <span class="at">length =</span> <span class="fu">nrow</span>(localMI))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We will now derive the spatially lagged variable and center it around its mean.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>DV <span class="ot">&lt;-</span> hunan<span class="sc">$</span>lag_GDPPC <span class="sc">-</span> <span class="fu">mean</span>(hunan<span class="sc">$</span>lag_GDPPC)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The local Moran’s is centered around its mean:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb135"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb135-1"><a href="#cb135-1" aria-hidden="true" tabindex="-1"></a>LM_I <span class="ot">&lt;-</span> localMI[,<span class="dv">1</span>] <span class="sc">-</span> <span class="fu">mean</span>(localMI[,<span class="dv">1</span>])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We will set a significance level for the local Moran:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a>signif <span class="ot">&lt;-</span> <span class="fl">0.05</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>We will define the low-low (1), low-high (2), high-low (3), and high-high (4) categories:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb137"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb137-1"><a href="#cb137-1" aria-hidden="true" tabindex="-1"></a>quadrant[DV <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> LM_I <span class="sc">&gt;</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb137-2"><a href="#cb137-2" aria-hidden="true" tabindex="-1"></a>quadrant[DV <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> LM_I <span class="sc">&lt;</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="dv">2</span></span>
+<span id="cb137-3"><a href="#cb137-3" aria-hidden="true" tabindex="-1"></a>quadrant[DV <span class="sc">&lt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> LM_I <span class="sc">&lt;</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb137-4"><a href="#cb137-4" aria-hidden="true" tabindex="-1"></a>quadrant[DV <span class="sc">&gt;</span> <span class="dv">0</span> <span class="sc">&amp;</span> LM_I <span class="sc">&gt;</span> <span class="dv">0</span>] <span class="ot">&lt;-</span> <span class="dv">4</span></span>
+<span id="cb137-5"><a href="#cb137-5" aria-hidden="true" tabindex="-1"></a>quadrant[localMI[,<span class="dv">5</span>] <span class="sc">&gt;</span> signif] <span class="ot">&lt;-</span> <span class="dv">0</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="plotting-lisa-map" class="level3">
+<h3 class="anchored" data-anchor-id="plotting-lisa-map">2.6.4. Plotting LISA Map</h3>
+<p>We will build the LISA map using the following code:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>hunan.localMI<span class="sc">$</span>quadrant  <span class="ot">&lt;-</span> quadrant </span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a>colours <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'#ffffff'</span>, <span class="st">'#2c7bb6'</span>, <span class="st">'#abd9e9'</span>, <span class="st">'#fdae61'</span>, <span class="st">'#d7191c'</span>)</span>
+<span id="cb138-3"><a href="#cb138-3" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'insignificant'</span>, <span class="st">'low-low'</span>, <span class="st">'low-high'</span>, <span class="st">'high-low'</span>, <span class="st">'high-high'</span>)</span>
+<span id="cb138-4"><a href="#cb138-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb138-5"><a href="#cb138-5" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(hunan.localMI) <span class="sc">+</span></span>
+<span id="cb138-6"><a href="#cb138-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="at">col =</span> <span class="st">"quadrant"</span>,</span>
+<span id="cb138-7"><a href="#cb138-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">'cat'</span>,</span>
+<span id="cb138-8"><a href="#cb138-8" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> colours[<span class="fu">c</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(quadrant)))<span class="sc">+</span><span class="dv">1</span>],</span>
+<span id="cb138-9"><a href="#cb138-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> clusters[<span class="fu">c</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(quadrant)))<span class="sc">+</span><span class="dv">1</span>],</span>
+<span id="cb138-10"><a href="#cb138-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">popup.vars =</span> <span class="fu">c</span>(<span class="st">""</span>)) <span class="sc">+</span></span>
+<span id="cb138-11"><a href="#cb138-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_view</span>(<span class="at">set.zoom.limits =</span> <span class="fu">c</span>(<span class="dv">11</span>,<span class="dv">17</span>)) <span class="sc">+</span></span>
+<span id="cb138-12"><a href="#cb138-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-91-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>We can plot both the local Moran’s I values map together with the p-values map:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a>gdppc <span class="ot">&lt;-</span> <span class="fu">qtm</span>(hunan, <span class="st">"GDPPC"</span>)</span>
+<span id="cb139-2"><a href="#cb139-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb139-3"><a href="#cb139-3" aria-hidden="true" tabindex="-1"></a>hunan.localMI<span class="sc">$</span>quadrant <span class="ot">&lt;-</span> quadrant</span>
+<span id="cb139-4"><a href="#cb139-4" aria-hidden="true" tabindex="-1"></a>colours <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'#ffffff'</span>, <span class="st">'#2c7bb6'</span>, <span class="st">'#abd9e9'</span>, <span class="st">'#fdae61'</span>, <span class="st">'#d7191c'</span>)</span>
+<span id="cb139-5"><a href="#cb139-5" aria-hidden="true" tabindex="-1"></a>clusters <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'insignificant'</span>, <span class="st">'low-low'</span>, <span class="st">'low-high'</span>, <span class="st">'high-low'</span>, <span class="st">'high-high'</span>)</span>
+<span id="cb139-6"><a href="#cb139-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb139-7"><a href="#cb139-7" aria-hidden="true" tabindex="-1"></a>LISA_map <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(hunan.localMI) <span class="sc">+</span></span>
+<span id="cb139-8"><a href="#cb139-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="at">col =</span> <span class="st">"quadrant"</span>,</span>
+<span id="cb139-9"><a href="#cb139-9" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">'cat'</span>,</span>
+<span id="cb139-10"><a href="#cb139-10" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> colours[<span class="fu">c</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(quadrant)))<span class="sc">+</span><span class="dv">1</span>],</span>
+<span id="cb139-11"><a href="#cb139-11" aria-hidden="true" tabindex="-1"></a>          <span class="at">labels =</span> clusters[<span class="fu">c</span>(<span class="fu">sort</span>(<span class="fu">unique</span>(quadrant)))<span class="sc">+</span><span class="dv">1</span>],</span>
+<span id="cb139-12"><a href="#cb139-12" aria-hidden="true" tabindex="-1"></a>          <span class="at">popup.vars =</span> <span class="fu">c</span>(<span class="st">""</span>)) <span class="sc">+</span></span>
+<span id="cb139-13"><a href="#cb139-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_view</span>(<span class="at">set.zoom.limits =</span> <span class="fu">c</span>(<span class="dv">11</span>,<span class="dv">17</span>)) <span class="sc">+</span></span>
+<span id="cb139-14"><a href="#cb139-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>)</span>
+<span id="cb139-15"><a href="#cb139-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb139-16"><a href="#cb139-16" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(gdppc, LISA_map, <span class="at">asp =</span> <span class="dv">1</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="Hands_on_Ex02_files/figure-html/unnamed-chunk-92-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+</section>
+<section id="hot-spot-and-cold-spot-area-analysis" class="level2">
+<h2 class="anchored" data-anchor-id="hot-spot-and-cold-spot-area-analysis">2.7. Hot Spot and Cold SPot Area Analysis</h2>
+<p>Besides detecting cluster and outliers, localised spatial statistics can be used to detect hot spot and/or cold spot areas. The term ‘hot spot’ has been used generally to describe a region or value that is higher than its surroundings.</p>
+<section id="getis-and-ords-g-statistics" class="level3">
+<h3 class="anchored" data-anchor-id="getis-and-ords-g-statistics">2.7.1. Getis and Ord’s G-Statistics</h3>
+<p>An alternative spatial statistics to detect spatial anomalies is the Getis and Ord’s G-statistics. It looks at neighbours within a defined proximity to identify where the high or low values cluster spatially. Statistically significant hot spots are recognised as areas of high values where other areas within a neighbourhood range also share high values.</p>
+</section>
+<section id="deriving-distance-based-weight-matrix" class="level3">
+<h3 class="anchored" data-anchor-id="deriving-distance-based-weight-matrix">2.7.2. Deriving Distance-based Weight Matrix</h3>
+<p>First, we need to define a new set of neighbours as the Getis-Ord defines neighbours based on distance.</p>
+<p>We can derive the centroid or cut-off distance.</p>
+<section id="deriving-centroid" class="level4">
+<h4 class="anchored" data-anchor-id="deriving-centroid">2.7.2.1. Deriving Centroid</h4>
+<p>To get the longitude and latitude values, we map st_centroid() over the geometry column of us.bound and access each value through [[]] and 1 and 2 respectively.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>longitude <span class="ot">&lt;-</span> <span class="fu">map_dbl</span>(hunan<span class="sc">$</span>geometry, <span class="sc">~</span><span class="fu">st_centroid</span>(.x)[[<span class="dv">1</span>]])</span>
+<span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb140-3"><a href="#cb140-3" aria-hidden="true" tabindex="-1"></a>latitude <span class="ot">&lt;-</span> <span class="fu">map_dbl</span>(hunan<span class="sc">$</span>geometry, <span class="sc">~</span><span class="fu">st_centroid</span>(.x)[[<span class="dv">2</span>]])</span>
+<span id="cb140-4"><a href="#cb140-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb140-5"><a href="#cb140-5" aria-hidden="true" tabindex="-1"></a>coords <span class="ot">&lt;-</span> <span class="fu">cbind</span>(longitude, latitude)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="determine-cut-off-distance" class="level4">
+<h4 class="anchored" data-anchor-id="determine-cut-off-distance">2.7.2.2. Determine Cut-off Distance</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>k1 <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(coords))</span>
+<span id="cb141-2"><a href="#cb141-2" aria-hidden="true" tabindex="-1"></a>k1dists <span class="ot">&lt;-</span> <span class="fu">unlist</span>(<span class="fu">nbdists</span>(k1, coords, <span class="at">longlat =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb141-3"><a href="#cb141-3" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(k1dists)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+  24.79   32.57   38.01   39.07   44.52   61.79 </code></pre>
+</div>
+</div>
+</section>
+<section id="computing-fixed-distance-weight-matrix-1" class="level4">
+<h4 class="anchored" data-anchor-id="computing-fixed-distance-weight-matrix-1">2.7.2.3. Computing Fixed Distance Weight Matrix</h4>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a>wm_d62 <span class="ot">&lt;-</span> <span class="fu">dnearneigh</span>(coords, <span class="dv">0</span>, <span class="dv">62</span>, <span class="at">longlat =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a>wm62_lw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(wm_d62, <span class="at">style =</span> <span class="st">"B"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="computing-adaptive-distance-weight-matrix-1" class="level3">
+<h3 class="anchored" data-anchor-id="computing-adaptive-distance-weight-matrix-1">2.7.3 Computing Adaptive Distance Weight Matrix</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a>knn <span class="ot">&lt;-</span> <span class="fu">knn2nb</span>(<span class="fu">knearneigh</span>(coords, <span class="at">k =</span> <span class="dv">8</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a>knn_lw <span class="ot">&lt;-</span> <span class="fu">nb2listw</span>(knn, <span class="at">style =</span> <span class="st">"B"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+<section id="computing-gi-statistics" class="level2">
+<h2 class="anchored" data-anchor-id="computing-gi-statistics">2.8. Computing Gi Statistics</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb147"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb147-1"><a href="#cb147-1" aria-hidden="true" tabindex="-1"></a>fips <span class="ot">&lt;-</span> <span class="fu">order</span>(hunan<span class="sc">$</span>County)</span>
+<span id="cb147-2"><a href="#cb147-2" aria-hidden="true" tabindex="-1"></a>gi.fixed <span class="ot">&lt;-</span> <span class="fu">localG</span>(hunan<span class="sc">$</span>GDPPC, wm62_lw)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="gi-statistics-using-fixed-distance" class="level3">
+<h3 class="anchored" data-anchor-id="gi-statistics-using-fixed-distance">2.8.1. Gi statistics Using Fixed Distance</h3>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb148"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb148-1"><a href="#cb148-1" aria-hidden="true" tabindex="-1"></a>hunan.gi <span class="ot">&lt;-</span> <span class="fu">cbind</span>(hunan, <span class="fu">as.matrix</span>(gi.fixed)) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="mapping-gi-values-with-fixed-disance-weights" class="level3">
+<h3 class="anchored" data-anchor-id="mapping-gi-values-with-fixed-disance-weights">2.8.2. Mapping Gi Values with Fixed Disance Weights</h3>
 
 
 </section>
