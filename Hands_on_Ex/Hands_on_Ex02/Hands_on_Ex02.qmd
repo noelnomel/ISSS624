@@ -538,4 +538,10 @@ w_sum_gdppc <- qtm(hunan, "w_sum GDPPC")
 tmap_arrange(lag_gdppc, w_sum_gdppc, asp = 1, ncol = 2)
 ```
 
-2.1 Part 2
+# 2. Global Measures of Spatial Autocorrelation
+
+## 2.1 Overview
+
+In spatial policy, one of the main development objectives of local government and planners is to ensure equal distribution of development in the province. We will apply appropriate spatial statistical methods to discover if development is evenly distributed geographically. This will be a case study of the spatial pattern of GDP Per Capita in Hunan Province, China.
+
+The same data sets and R packages imported from section 1 will be used.
