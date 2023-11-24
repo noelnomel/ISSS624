@@ -308,7 +308,9 @@ rswm_q <- nb2listw(wm_q, style = "W", zero.policy = TRUE)
 rswm_q
 ```
 
-The `zero.policy = TRUE` option allows for lists of non-neighbours.
+When `zero.policy = TRUE`, weights vectors of zero length are inserted for regions without neighbours in the neighbours list. These will then generate lag values of zero, equivalent to the sum of products of the zero row t(rep(0, length = length(neighbours))) %\>% x for arbitrary numerical vector x of length(neighbours). The spatially lagged value of x for the zero-neighbour region will then be zero.
+
+style can take the following values: "W" for equal weight "B" for basic binary coding "C" for globally standardised (sums over all links to n) "U" for "C" divided by number of neighbours (sums over all links to unity) "S" for variance-standardising coding scheme (sums over all links to n)
 
 To see the weight of the first polygon's eight neighbours:
 
@@ -540,8 +542,163 @@ tmap_arrange(lag_gdppc, w_sum_gdppc, asp = 1, ncol = 2)
 
 # 2. Global Measures of Spatial Autocorrelation
 
-## 2.1 Overview
+## 2.1. Overview
 
-In spatial policy, one of the main development objectives of local government and planners is to ensure equal distribution of development in the province. We will apply appropriate spatial statistical methods to discover if development is evenly distributed geographically. This will be a case study of the spatial pattern of GDP Per Capita in Hunan Province, China.
+In spatial policy, one of the main development objectives of local government and planners is to ensure equal distribution of development in the province. We will apply appropriate spatial statistical methods to discover if development is evenly distributed geographically. This will be a case study of the spatial pattern of **GDP Per Capita** in Hunan Province, China.
 
 The same data sets and R packages imported from section 1 will be used.
+
+## 2.2. Visualising Regional Development Indicator
+
+We will create a basemap and choropleth map to show the distribution of GDPPC 2012 by using `qtm()` from the `tmap` package:
+
+```{r}
+equal <- tm_shape(hunan) +
+  tm_fill("GDPPC", n = 5, style = "equal") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Equal Interval Classification")
+
+quantile <- tm_shape(hunan) +
+  tm_fill("GDPPC", n = 5, style = "quantile") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Equal Quantile Classification")
+
+tmap_arrange(equal, quantile, asp = 1, ncol = 2)
+```
+
+## 2.3. Global Spatial Autocorrelation
+
+In this section, we will compute gloabl spatial autocorrelation statistics and perform spatial complete randomness test for global spatial autocorrelation. We will use the contiguity spatial weights and row-standardised weights matrix computed in the previous section to perform the required statistical tests.
+
+### 2.3.1. Global Spatial Autocorrelation: Moran's I
+
+We will perform **Moran's I** statistics test using `moran.test()` from `spdep`.
+
+```{r}
+moran.test(hunan$GDPPC, listw = rswm_q, zero.policy = TRUE,
+           na.action = na.omit)
+```
+
+The p-value from the test = 1.095e-06, which signifies that the null hypothesis is rejected at 5% alpha. This means that the spatial distribution of high values and/or low values in the data set is more spatially clustered than would be expected if underlying spatial processes were random.
+
+#### 2.3.1.1. Computing Monte Carlo Moran's I
+
+We will use the following code to perform permutation test for **Moran's I** statistic using `moran.mc()` from `spdep`. 1000 simulations will be performed.
+
+```{r}
+set.seed(1234)
+bperm_I <- moran.mc(hunan$GDPPC, listw = rswm_q, nsim = 999, 
+                  zero.policy = TRUE, na.action = na.omit)
+bperm_I
+```
+
+Using 1000 simulations, the Moran I statistic remains stable at around 0.30075. The p-value from the 1000 simulations = 0.001, which signifies that the null hypothesis is rejected at 5% alpha. This means that the spatial distribution of high values and/or low values in the data set is more spatially clustered than would be expected if underlying spatial processes were random.
+
+#### 2.3.1.2. Visualising Monte Carlo Moran's I
+
+The following code can be used to visualise the Moran's I test statistics in greater detail through a histogram:
+
+```{r}
+mean(bperm_I$res[1:999])
+```
+
+```{r}
+var(bperm_I$res[1:999])
+```
+
+```{r}
+summary(bperm_I$res[1:999])
+```
+
+```{r}
+hist(bperm_I$res, freq = TRUE, breaks = 20, xlab = "Simulated Moran's I")
+abline(v = 0, col = 'red')
+```
+
+It can be observed that the distribution of `bperm_I$res` resembles the shape of a normal distribution.
+
+### 2.3.2. Global Spatial Autocorrelation: Geary's
+
+We will perform **Geary's c** statistics test using `geary.test()` from `spdep`.
+
+```{r}
+geary.test(hunan$GDPPC, listw = rswm_q)
+```
+
+The p-value from the test = 0.0001526, which signifies that the null hypothesis is rejected at 5% alpha. This means that the expectation of spatial distribution is greater than the statistic.
+
+#### 2.3.2.1. Computing Monte Geary's C
+
+We will use the following code to perform permutation test for **Geary's c** statistic using `geary.mc()` from spdep. 1000 simulations will be performed.
+
+```{r}
+set.seed(1234)
+bperm_c <- geary.mc(hunan$GDPPC, listw = rswm_q, nsim = 999, 
+                  zero.policy = TRUE)
+bperm_c
+```
+
+Using 1000 simulations, the Geary's c statistic remains stable at around 0.69072. The p-value from the 1000 simulations = 0.001, which signifies that the null hypothesis is rejected at 5% alpha. This means that the expectation of spatial distribution is greater than the statistic.
+
+#### 2.3.2.2. Visualising Monte Carlo Geary's C
+
+The following code can be used to visualise the Geary's c test statistics in greater detail through a histogram:
+
+```{r}
+mean(bperm_c$res[1:999])
+```
+
+```{r}
+var(bperm_c$res[1:999])
+```
+
+```{r}
+summary(bperm_c$res[1:999])
+```
+
+```{r}
+hist(bperm_c$res, freq = TRUE, breaks = 20, xlab = "Simulated Moran's I")
+abline(v = 1, col = 'red')
+```
+
+It can be observed that the distribution of `bperm_c$res` resembles the shape of a normal distribution.
+
+## 2.4. Spatial Correlogram
+
+Spatial correlograms help to examine patterns of spatial autocorrelation in the data or model residuals. They show the extent of correlation between pairs of spatial observations when distance (lag) is increased between them. Correlograms are useful as an exploratory and descriptive tool.
+
+### 2.4.1. Compute Moran's I Correlogram
+
+We will use `sp.correlogram()` from `spdep` to compute a 6-lag spatial correlogram of GDPPC.
+
+```{r}
+MI_corr <-sp.correlogram(wm_q, hunan$GDPPC, order = 6,
+                         method = "I", style = "W")
+plot(MI_corr)
+```
+
+Not all autocorrelation values are statistically significant, and this is not visible from the plot above. We will examine the full analysis report for a closer look:
+
+```{r}
+print(MI_corr)
+```
+
+It can be observed from the plot that there is a downward trend in the autocorrelation as lag increases. From the output of the analysis report, it is observed that the autocorrelation when lag = 5 is not significant at alpha 5% as the p-value = 0.226015.
+
+### 2.4.2. Compute Geary's C Correlogram
+
+We will use `sp.correlogram()` from `spdep` to compute a 6-lag spatial correlogram of GDPPC.
+
+```{r}
+GC_corr <-sp.correlogram(wm_q, hunan$GDPPC, order = 6,
+                         method = "C", style = "W")
+plot(GC_corr)
+```
+
+Not all autocorrelation values are statistically significant, and this is not visible from the plot above. We will examine the full analysis report for a closer look:
+
+```{r}
+print(GC_corr)
+```
+
+It can be observed from the plot that there is a upward trend in the autocorrelation as lag increases. From the output of the analysis report, it is observed that the autocorrelation when lag = 3, 4, and 6 is not significant at alpha 5% as the respective p-values are greater than 0.05.
