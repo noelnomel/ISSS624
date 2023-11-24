@@ -537,3 +537,5 @@ Lastly, we can plot the `lag_gdppc` and `w_sum_gdppc` for comparison:
 w_sum_gdppc <- qtm(hunan, "w_sum GDPPC")
 tmap_arrange(lag_gdppc, w_sum_gdppc, asp = 1, ncol = 2)
 ```
+
+2.1 Part 2
