@@ -9,3 +9,40 @@ execute:
   warning: false # do not display warning message
 editor: visual
 ---
+
+# Getting Started
+We will use the following packages in this in-class exercise:
+```{r}
+pacman::p_load(sf, tmap, sfdep, tidyverse, knitr)
+```
+
+# Loading the Data
+
+First, we will import Hunan, a geospatial data set in ESRI shapefile format:
+```{r}
+hunan <- st_read(dsn = "data/geospatial",
+                 layer = "Hunan")
+```
+
+Next, we will import Hunan_2012, an attribute data set in csv file:
+```{r}
+hunan2012 <- read_csv("data/aspatial/Hunan_2012.csv")
+```
+We will combine hunan and hunan2012 using left_join():
+```{r}
+hunan <- left_join(hunan, hunan2012) %>%
+  select(1:4,7,15)
+```
+Use left join to retain the geometry of the shapefile and to retain the sf data frame output format. 
+
+
+
+
+
+
+
+
+
+
+
+
