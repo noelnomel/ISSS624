@@ -189,7 +189,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#importing-data" id="toc-importing-data" class="nav-link" data-scroll-target="#importing-data">1.2. Importing Data</a>
   <ul class="collapse">
   <li><a href="#importing-geospatial-data" id="toc-importing-geospatial-data" class="nav-link" data-scroll-target="#importing-geospatial-data">1.2.1. Importing Geospatial Data</a></li>
-  <li><a href="#importing-aspatial-data" id="toc-importing-aspatial-data" class="nav-link" data-scroll-target="#importing-aspatial-data">1.2.2. Importing Aspatial Data</a></li>
+  <li><a href="#importing-attribute-data" id="toc-importing-attribute-data" class="nav-link" data-scroll-target="#importing-attribute-data">1.2.2. Importing Attribute Data</a></li>
   <li><a href="#performing-relational-join" id="toc-performing-relational-join" class="nav-link" data-scroll-target="#performing-relational-join">1.2.3. Performing Relational Join</a></li>
   </ul></li>
   <li><a href="#visualising-regional-development-indicator" id="toc-visualising-regional-development-indicator" class="nav-link" data-scroll-target="#visualising-regional-development-indicator">1.3. Visualising Regional Development Indicator</a></li>
@@ -242,7 +242,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#preparing-lisa-map-classes" id="toc-preparing-lisa-map-classes" class="nav-link" data-scroll-target="#preparing-lisa-map-classes">2.6.3. Preparing LISA Map Classes</a></li>
   <li><a href="#plotting-lisa-map" id="toc-plotting-lisa-map" class="nav-link" data-scroll-target="#plotting-lisa-map">2.6.4. Plotting LISA Map</a></li>
   </ul></li>
-  <li><a href="#hot-spot-and-cold-spot-area-analysis" id="toc-hot-spot-and-cold-spot-area-analysis" class="nav-link" data-scroll-target="#hot-spot-and-cold-spot-area-analysis">2.7. Hot Spot and Cold SPot Area Analysis</a>
+  <li><a href="#hot-spot-and-cold-spot-area-analysis" id="toc-hot-spot-and-cold-spot-area-analysis" class="nav-link" data-scroll-target="#hot-spot-and-cold-spot-area-analysis">2.7. Hot Spot and Cold Spot Area Analysis</a>
   <ul class="collapse">
   <li><a href="#getis-and-ords-g-statistics" id="toc-getis-and-ords-g-statistics" class="nav-link" data-scroll-target="#getis-and-ords-g-statistics">2.7.1. Getis and Ord’s G-Statistics</a></li>
   <li><a href="#deriving-distance-based-weight-matrix" id="toc-deriving-distance-based-weight-matrix" class="nav-link" data-scroll-target="#deriving-distance-based-weight-matrix">2.7.2. Deriving Distance-based Weight Matrix</a></li>
@@ -333,8 +333,8 @@ Geodetic CRS:  WGS 84</code></pre>
 </div>
 </div>
 </section>
-<section id="importing-aspatial-data" class="level3">
-<h3 class="anchored" data-anchor-id="importing-aspatial-data">1.2.2. Importing Aspatial Data</h3>
+<section id="importing-attribute-data" class="level3">
+<h3 class="anchored" data-anchor-id="importing-attribute-data">1.2.2. Importing Attribute Data</h3>
 <p>The following code imports the csv file into R using <code>read_csv()</code> function from the <code>readr</code> package:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>hunan2012 <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"data/aspatial/Hunan_2012.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3113,7 +3113,14 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 6 -0.038793829 -3.860263e-04 6.475559e-03 -0.47728835      0.6331568</code></pre>
 </div>
 </div>
-<p>The localmoran() function returns a matrix of values with the following columns: - Ii: the local Moran’s I statistics - E.Ii: the expected local Moran statistics under randomisation hypothesis - Var.Ii: the variance of local Moran statistics under randomisation hypothesis - Z.Li: the standard deviate of local Moran statistic - Pr(): the p-value of local Moran statistic</p>
+<p>The localmoran() function returns a matrix of values with the following columns:</p>
+<ul>
+<li><p><code>Ii</code>: the local Moran’s I statistics</p></li>
+<li><p><code>E.Ii</code>: the expected local Moran statistics under randomisation hypothesis</p></li>
+<li><p><code>Var.Ii</code>: the variance of local Moran statistics under randomisation hypothesis</p></li>
+<li><p><code>Z.Li</code>: the standard deviate of local Moran statistic</p></li>
+<li><p><code>Pr()</code>: the p-value of local Moran statistic</p></li>
+</ul>
 <p>We will use the following code to list the content of the local Moran matrix:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb124"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb124-1"><a href="#cb124-1" aria-hidden="true" tabindex="-1"></a><span class="fu">printCoefmat</span>(<span class="fu">data.frame</span>(</span>
@@ -3214,7 +3221,7 @@ Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</co
 </div>
 <section id="mapping-local-morans-i" class="level4">
 <h4 class="anchored" data-anchor-id="mapping-local-morans-i">2.5.1.1. Mapping Local Moran’s I</h4>
-<p>The local Moran’s I data frame is first appended to the hunan SpatialPolygonDataFrame:</p>
+<p>The local Moran’s I data frame is first appended to the hunan <code>SpatialPolygonDataFrame</code>:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>hunan.localMI <span class="ot">&lt;-</span> <span class="fu">cbind</span>(hunan, localMI) <span class="sc">%&gt;%</span></span>
 <span id="cb126-2"><a href="#cb126-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">Pr.Ii =</span> Pr.z....E.Ii..)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3290,7 +3297,9 @@ Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</co
 <div class="sourceCode cell-code" id="cb131"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb131-1"><a href="#cb131-1" aria-hidden="true" tabindex="-1"></a>hunan<span class="sc">$</span>Z.GDPPC <span class="ot">&lt;-</span> <span class="fu">scale</span>(hunan<span class="sc">$</span>GDPPC) <span class="sc">%&gt;%</span></span>
 <span id="cb131-2"><a href="#cb131-2" aria-hidden="true" tabindex="-1"></a>  as.vector</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Using as.vector at the end ensures that the data output is in vector format.</p>
+<blockquote class="blockquote">
+<p>Using <code>as.vector</code> at the end ensures that the data output is in vector format.</p>
+</blockquote>
 <p>We will plot the Moran scatterplot again using the standardised variables:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>nci2 <span class="ot">&lt;-</span> <span class="fu">moran.plot</span>(hunan<span class="sc">$</span>GDPPC, rswm_q,</span>
@@ -3374,7 +3383,7 @@ Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</co
 </section>
 </section>
 <section id="hot-spot-and-cold-spot-area-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="hot-spot-and-cold-spot-area-analysis">2.7. Hot Spot and Cold SPot Area Analysis</h2>
+<h2 class="anchored" data-anchor-id="hot-spot-and-cold-spot-area-analysis">2.7. Hot Spot and Cold Spot Area Analysis</h2>
 <p>Besides detecting cluster and outliers, localised spatial statistics can be used to detect hot spot and/or cold spot areas. The term ‘hot spot’ has been used generally to describe a region or value that is higher than its surroundings.</p>
 <section id="getis-and-ords-g-statistics" class="level3">
 <h3 class="anchored" data-anchor-id="getis-and-ords-g-statistics">2.7.1. Getis and Ord’s G-Statistics</h3>
@@ -3386,7 +3395,7 @@ Zixing        -7.6849e-01 -8.8210e-02  9.4057e-01 -7.0144e-01         0.4830</co
 <p>We can derive the centroid or cut-off distance.</p>
 <section id="deriving-centroid" class="level4">
 <h4 class="anchored" data-anchor-id="deriving-centroid">2.7.2.1. Deriving Centroid</h4>
-<p>To get the longitude and latitude values, we map st_centroid() over the geometry column of us.bound and access each value through [[]] and 1 and 2 respectively.</p>
+<p>To get the longitude and latitude values, we map <code>st_centroid()</code> over the geometry column of us.bound and access each value through [[]] and 1 and 2 respectively.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb140"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb140-1"><a href="#cb140-1" aria-hidden="true" tabindex="-1"></a>longitude <span class="ot">&lt;-</span> <span class="fu">map_dbl</span>(hunan<span class="sc">$</span>geometry, <span class="sc">~</span><span class="fu">st_centroid</span>(.x)[[<span class="dv">1</span>]])</span>
 <span id="cb140-2"><a href="#cb140-2" aria-hidden="true" tabindex="-1"></a></span>

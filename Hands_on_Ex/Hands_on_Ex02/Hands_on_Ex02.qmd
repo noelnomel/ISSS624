@@ -49,7 +49,7 @@ hunan <- st_read(dsn = "data/geospatial",
                  layer = "Hunan")
 ```
 
-### 1.2.2. Importing Aspatial Data
+### 1.2.2. Importing Attribute Data
 
 The following code imports the csv file into R using `read_csv()` function from the `readr` package:
 
@@ -704,10 +704,12 @@ print(GC_corr)
 It can be observed from the plot that there is a upward trend in the autocorrelation as lag increases. From the output of the analysis report, it is observed that the autocorrelation when lag = 3, 4, and 6 is not significant at alpha 5% as the respective p-values are greater than 0.05.
 
 ## 2.5. Cluster and Outlier Analysis
+
 Local Indicators of Spatial Association (LISA) evaluates the existence of clusters in the spatial arrangement of a given variable. We will apply the appropriate LISA methods to detect cluster and/or outlier from GDP Per Capita 2012 of Hunan Province.
 
 ### 2.5.1. Computing Local Moran's I
-We will use the localmoran() function from spdep to compute local Moran's I. This function computes Ii values given a set of zi values and listw object project neighbour weight information of the polygons associated with the zi values. 
+
+We will use the localmoran() function from spdep to compute local Moran's I. This function computes Ii values given a set of zi values and listw object project neighbour weight information of the polygons associated with the zi values.
 
 The following code computes local Moran's I at the county level:
 
@@ -716,12 +718,18 @@ fips <- order(hunan$County)
 localMI <- localmoran(hunan$GDPPC, rswm_q)
 head(localMI)
 ```
+
 The localmoran() function returns a matrix of values with the following columns:
-- Ii: the local Moran's I statistics
-- E.Ii: the expected local Moran statistics under randomisation hypothesis
-- Var.Ii: the variance of local Moran statistics under randomisation hypothesis
-- Z.Li: the standard deviate of local Moran statistic
-- Pr(): the p-value of local Moran statistic
+
+-   `Ii`: the local Moran's I statistics
+
+-   `E.Ii`: the expected local Moran statistics under randomisation hypothesis
+
+-   `Var.Ii`: the variance of local Moran statistics under randomisation hypothesis
+
+-   `Z.Li`: the standard deviate of local Moran statistic
+
+-   `Pr()`: the p-value of local Moran statistic
 
 We will use the following code to list the content of the local Moran matrix:
 
@@ -733,7 +741,9 @@ printCoefmat(data.frame(
 ```
 
 #### 2.5.1.1. Mapping Local Moran's I
-The local Moran's I data frame is first appended to the hunan SpatialPolygonDataFrame:
+
+The local Moran's I data frame is first appended to the hunan `SpatialPolygonDataFrame`:
+
 ```{r}
 hunan.localMI <- cbind(hunan, localMI) %>%
   rename(Pr.Ii = Pr.z....E.Ii..)
@@ -751,6 +761,7 @@ tm_shape(hunan.localMI) +
 ```
 
 We will use the following code to plot a choropleth map of Moran I's p-values:
+
 ```{r}
 tm_shape(hunan.localMI) + 
   tm_fill(col = "Pr.Ii",
@@ -780,9 +791,11 @@ tmap_arrange(localMI_map, pvalue_map, asp =1, ncol = 2)
 ```
 
 ## 2.6. Creating a LISA Cluster Map
+
 The LISA cluster map shows the significant locations colour coded by the type of spatial autocorrelation. First, we have to plot the Moran scatterplot.
 
 ### 2.6.1. Plotting Moran Scatterplot
+
 The Moran scatterplot illustrates the relationship between the values of a chosen attribute at each location and the average value of the same attribute at neighbouring locations. This is done using the following code:
 
 ```{r}
@@ -795,13 +808,15 @@ nci <- moran.plot(hunan$GDPPC, rswm_q,
 The plot is split into four quadrants. The top corner belongs to areas with high GDPPC and are surrounded by other areas with average levels of GDPPC.
 
 ### 2.6.2. Plotting Moran Scatterplot with Standardised Variables
+
 We will use the scale() function to center and scale the variable. Centering is done by subtracting the mean from the corresponding columns while scaling is done by dividing the centered variable by their standard deviations:
 
 ```{r}
 hunan$Z.GDPPC <- scale(hunan$GDPPC) %>%
   as.vector
 ```
-Using as.vector at the end ensures that the data output is in vector format.
+
+> Using `as.vector` at the end ensures that the data output is in vector format.
 
 We will plot the Moran scatterplot again using the standardised variables:
 
@@ -813,6 +828,7 @@ nci2 <- moran.plot(hunan$GDPPC, rswm_q,
 ```
 
 ### 2.6.3. Preparing LISA Map Classes
+
 We will use the following code to prepare a LISA cluster map:
 
 ```{r}
@@ -848,6 +864,7 @@ quadrant[localMI[,5] > signif] <- 0
 ```
 
 ### 2.6.4. Plotting LISA Map
+
 We will build the LISA map using the following code:
 
 ```{r}
@@ -886,19 +903,23 @@ LISA_map <- tm_shape(hunan.localMI) +
 tmap_arrange(gdppc, LISA_map, asp = 1, ncol = 2)
 ```
 
-## 2.7. Hot Spot and Cold SPot Area Analysis
-Besides detecting cluster and outliers, localised spatial statistics can be used to detect hot spot and/or cold spot areas. The term 'hot spot' has been used generally to describe a region or value that is higher than its surroundings. 
+## 2.7. Hot Spot and Cold Spot Area Analysis
+
+Besides detecting cluster and outliers, localised spatial statistics can be used to detect hot spot and/or cold spot areas. The term 'hot spot' has been used generally to describe a region or value that is higher than its surroundings.
 
 ### 2.7.1. Getis and Ord's G-Statistics
+
 An alternative spatial statistics to detect spatial anomalies is the Getis and Ord's G-statistics. It looks at neighbours within a defined proximity to identify where the high or low values cluster spatially. Statistically significant hot spots are recognised as areas of high values where other areas within a neighbourhood range also share high values.
 
 ### 2.7.2. Deriving Distance-based Weight Matrix
-First, we need to define a new set of neighbours as the Getis-Ord defines neighbours based on distance. 
+
+First, we need to define a new set of neighbours as the Getis-Ord defines neighbours based on distance.
 
 We can derive the centroid or cut-off distance.
 
 #### 2.7.2.1. Deriving Centroid
-To get the longitude and latitude values, we map st_centroid() over the geometry column of us.bound and access each value through [[]] and 1 and 2 respectively.
+
+To get the longitude and latitude values, we map `st_centroid()` over the geometry column of us.bound and access each value through \[\[\]\] and 1 and 2 respectively.
 
 ```{r}
 longitude <- map_dbl(hunan$geometry, ~st_centroid(.x)[[1]])
@@ -937,12 +958,14 @@ knn_lw <- nb2listw(knn, style = "B")
 ```
 
 ## 2.8. Computing Gi Statistics
+
 ```{r}
 fips <- order(hunan$County)
 gi.fixed <- localG(hunan$GDPPC, wm62_lw)
 ```
 
 ### 2.8.1. Gi statistics Using Fixed Distance
+
 ```{r}
 hunan.gi <- cbind(hunan, as.matrix(gi.fixed)) 
 ```
