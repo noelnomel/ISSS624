@@ -410,6 +410,13 @@
     "href": "In_class_Ex/In_class_Ex02/In_Class_Ex02.html",
     "title": "In-Class Exercise 2",
     "section": "",
-    "text": "Getting Started\nWe will use the following packages in this in-class exercise:\n\npacman::p_load(sf, tmap, sfdep, tidyverse, knitr)\n\n\n\nLoading the Data\nFirst, we will import Hunan, a geospatial data set in ESRI shapefile format:\n\nhunan &lt;- st_read(dsn = \"data/geospatial\",\n                 layer = \"Hunan\")\n\nReading layer `Hunan' from data source \n  `C:\\Users\\noel1\\Documents\\School\\02. Special Sem 1\\ISSS624 Geospatial Analysis\\noelnomel\\ISSS624\\In_class_Ex\\In_class_Ex02\\data\\geospatial' \n  using driver `ESRI Shapefile'\nSimple feature collection with 88 features and 7 fields\nGeometry type: POLYGON\nDimension:     XY\nBounding box:  xmin: 108.7831 ymin: 24.6342 xmax: 114.2544 ymax: 30.12812\nGeodetic CRS:  WGS 84\n\n\nNext, we will import Hunan_2012, an attribute data set in csv file:\n\nhunan2012 &lt;- read_csv(\"data/aspatial/Hunan_2012.csv\")\n\nWe will combine hunan and hunan2012 using left_join():\n\nhunan &lt;- left_join(hunan, hunan2012) %&gt;%\n  select(1:4,7,15)\n\nUse left join to retain the geometry of the shapefile and to retain the sf data frame output format."
+    "text": "We will use the following packages in this in-class exercise:\n\npacman::p_load(sf, tmap, sfdep, tidyverse, knitr, plotly)"
+  },
+  {
+    "objectID": "In_class_Ex/In_class_Ex02/In_Class_Ex02.html#visualising-local-morans-i",
+    "href": "In_class_Ex/In_class_Ex02/In_Class_Ex02.html#visualising-local-morans-i",
+    "title": "In-Class Exercise 2",
+    "section": "Visualising Local Moran’s I",
+    "text": "Visualising Local Moran’s I\n\npacman::p_load(sf, tmap, sfdep, tidyverse, knitr, plotly)\n\n\nGDPPC &lt;- read.csv(\"data/aspatial/Hunan_GDPPC.csv\")\n\n\nGDPPC_st &lt;- spacetime(GDPPC, hunan,\n                      .loc_col = \"County\",\n                      .time_col = \"Year\")\n\n\nGDPPC_nb &lt;- GDPPC_st %&gt;%\n  activate(\"geometry\") %&gt;%\n  mutate(nb = include_self(st_contiguity(geometry)),\n         wt = st_inverse_distance(nb, geometry, scale = 1, alpha = 1),\n         .before = 1) %&gt;%\n  set_nbs(\"nb\") %&gt;%\n  set_wts(\"wt\")\n\n\n# gi_stars &lt;- GDPPC_nb %&gt;%\n  #group_by(Year) %&gt;%\n  #mutate(gi_star = local_gstar_perm(GDPPC, nb, wt)) %&gt;%\n  #tidyr::unnest(gi_star)\n\n\nggplot(data = )"
   }
 ]
