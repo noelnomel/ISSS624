@@ -931,6 +931,8 @@ coords <- cbind(longitude, latitude)
 
 #### 2.7.2.2. Determine Cut-off Distance
 
+We will determine the upper limit for the distance band, which is 61.79km.
+
 ```{r}
 k1 <- knn2nb(knearneigh(coords))
 k1dists <- unlist(nbdists(k1, coords, longlat = TRUE))
@@ -939,19 +941,32 @@ summary(k1dists)
 
 #### 2.7.2.3. Computing Fixed Distance Weight Matrix
 
+We will compute the distance weight matrix using `dnearneigh()`:
+
 ```{r}
 wm_d62 <- dnearneigh(coords, 0, 62, longlat = TRUE)
+wm_d62
 ```
+
+Next, we will use `nb2listw()` to convert the nb object into spatial weights object:
 
 ```{r}
 wm62_lw <- nb2listw(wm_d62, style = "B")
+summary(wm62_lw)
 ```
 
 ### 2.7.3 Computing Adaptive Distance Weight Matrix
 
+One of the characteristics of fixed distance weight matrix is that more densely populated areas tend to have more neighbours while less densely populated areas tend to have less neighbours.
+
+We can use k-nearest neighbours to control the number of neighbours by accepting assymetric neighbours or by imposing symmetry:
+
 ```{r}
 knn <- knn2nb(knearneigh(coords, k = 8))
+knn
 ```
+
+Next, we will use `nb2listw()` to convert the nb object into spatial weights object:
 
 ```{r}
 knn_lw <- nb2listw(knn, style = "B")
@@ -959,15 +974,67 @@ knn_lw <- nb2listw(knn, style = "B")
 
 ## 2.8. Computing Gi Statistics
 
+### 2.8.1. Computing Gi Statistics using Fixed Distance
+
 ```{r}
 fips <- order(hunan$County)
 gi.fixed <- localG(hunan$GDPPC, wm62_lw)
+gi.fixed
 ```
 
-### 2.8.1. Gi statistics Using Fixed Distance
+The output of localG() is a vector of G or Gstar values. We can see that gstari is FALSE and "call" is set to the function call and "class" is "localG"
+
+The Gi statistics is represented as a Z-score. Bigger values represent a bigger intensity of clustering and the direction (positive or negative) indicates high or low clusters.
+
+Next, we will join the Gi values to the corresponding hunan sf data frame:
 
 ```{r}
-hunan.gi <- cbind(hunan, as.matrix(gi.fixed)) 
+hunan.gi.f <- cbind(hunan, as.matrix(gi.fixed)) %>%
+  rename(gstat_fixed = as.matrix.gi.fixed.)
 ```
 
-### 2.8.2. Mapping Gi Values with Fixed Disance Weights
+#### 2.8.1.1. Mapping Gi Values with Fixed Distance Weights
+
+We will use the following code to map the Gi values with fixed distance weights:
+
+```{r}
+gdppc <- qtm(hunan, "GDPPC")
+
+Gi_f_map <- tm_shape(hunan.gi.f) +
+  tm_fill(col = "gstat_fixed",
+          style = "pretty",
+          palette = "-RdBu",
+          title = 'Local Gi (Fixed)') +
+  tm_borders(alpha = 0.5)
+
+tmap_arrange(gdppc, Gi_f_map, asp = 1, ncol = 2)
+```
+
+### 2.8.2. Gi Statistics Using Adaptive Distance Weights
+We will use the following code to map the Gi values using adaptive distance weights:
+
+```{r}
+fips <- order(hunan$County)
+gi.adaptive <- localG(hunan$GDPPC, knn_lw)
+hunan.gi.a <- cbind(hunan, as.matrix(gi.adaptive)) %>%
+  rename(gstat_adaptive = as.matrix.gi.adaptive.)
+```
+
+#### 2.8.2.1. Mapping Gi Values with Adaptive Distance Weights
+We will use the following code to map the Gi values with adaptive distance weights:
+
+```{r}
+gdppc <- qtm(hunan, "GDPPC")
+
+Gi_a_map <- tm_shape(hunan.gi.a) +
+  tm_fill(col = "gstat_adaptive",
+          style = "pretty",
+          palette = "-RdBu",
+          title = "Local Gi (Adaptive)") + 
+  tm_borders(alpha = 0.5)
+
+tmap_arrange(gdppc, Gi_a_map, asp = 1, ncol = 2)
+```
+
+
+
