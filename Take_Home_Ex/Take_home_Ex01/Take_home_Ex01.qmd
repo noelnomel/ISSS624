@@ -500,12 +500,17 @@ From the visualisation, high trip numbers can be observed to be occuring at diff
 ### 4.2.3. Comparison
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
 WD_AM_plot <- tm_shape(WD_AM_map) +
   tm_fill("TRIPS",
           style = "quantile",
           palette = "Blues",
           id = "TRIPS") +
+  tm_layout(main.title = "Weekday AM Peak Hours",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar()
 
@@ -514,6 +519,11 @@ WD_PM_plot <- tm_shape(WD_PM_map) +
           style = "quantile",
           palette = "Greens",
           id = "TRIPS") +
+  tm_layout(main.title = "Weekday PM Peak Hours",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar()
 
@@ -522,6 +532,11 @@ WE_AM_plot <- tm_shape(WE_AM_map) +
           style = "quantile",
           palette = "Reds",
           id =  "TRIPS") +
+  tm_layout(main.title = "Weekend/Holidays AM Peak Hours",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar()
 
@@ -530,6 +545,11 @@ WE_PM_plot <- tm_shape(WE_PM_map) +
           style = "quantile",
           palette = "Oranges",
           id = "TRIPS") +
+  tm_layout(main.title = "Weekend/Holidays PM Peak Hours",
+            main.title.position = "center",
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar()
 
@@ -537,13 +557,6 @@ tmap_arrange(WD_AM_plot, WD_PM_plot,
              WE_AM_plot, WE_PM_plot, 
              asp = 2, ncol = 2)
 ```
-
-Plot layout:
-
-|                       |                       |
-|-----------------------|-----------------------|
-| Weekday AM Peak Hours | Weekday PM Peak Hours |
-| Weekend AM Peak Hours | Weekend PM Peak Hours |
 
 Plotting all four graphs together allows for easier comparison.
 
@@ -834,7 +847,9 @@ tm_shape(lisa_WD_AM_sig) +
   tm_borders(alpha = 0.4) +
   tm_layout(main.title = "Weekday AM Peak",
             main.title.position = "center",
-            main.title.size = 1) +
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_scale_bar() +
   tm_grid(alpha = 0.2)
 
@@ -849,7 +864,9 @@ tm_shape(lisa_WD_PM_sig) +
   tm_borders(alpha = 0.4)+
   tm_layout(main.title = "Weekday PM Peak",
             main.title.position = "center",
-            main.title.size = 1) +
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_scale_bar() +
   tm_grid(alpha = 0.2)
 
@@ -863,9 +880,11 @@ tm_shape(lisa_WE_AM) +
 tm_shape(lisa_WE_AM_sig) +
   tm_fill("mean") + 
   tm_borders(alpha = 0.4)+
-  tm_layout(main.title = "Weekend AM Peak",
+  tm_layout(main.title = "Weekend/Holiday AM Peak",
             main.title.position = "center",
-            main.title.size = 1) +
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_scale_bar() +
   tm_grid(alpha = 0.2)
   
@@ -879,9 +898,11 @@ tm_shape(lisa_WE_PM) +
 tm_shape(lisa_WE_PM_sig) +
   tm_fill("mean") + 
   tm_borders(alpha = 0.4)+
-  tm_layout(main.title = "Weekend AM Peak",
+  tm_layout(main.title = "Weekend/Holiday AM Peak",
             main.title.position = "center",
-            main.title.size = 1) +
+            main.title.size = 1,
+            legend.height = 0.45,
+            legend.width = 0.35,) +
   tm_scale_bar() +
   tm_grid(alpha = 0.2)
 
@@ -890,14 +911,7 @@ tmap_arrange(lisa_WD_AM_plot, lisa_WD_PM_plot,
              asp = 2, ncol = 2)
 ```
 
-Plot layout:
-
-|                       |                       |
-|-----------------------|-----------------------|
-| Weekday AM Peak Hours | Weekday PM Peak Hours |
-| Weekend AM Peak Hours | Weekend PM Peak Hours |
-
-: Plotting all four graphs together allows for easier comparison.
+Plotting all four graphs together allows for easier comparison.
 
 Firstly, the graphs for Weekday AM and Weekday PM are compared. It is observed that there are less Low-Low and High-High clusters occurring in the evening than in the morning. There are more closely situated Low-Low and High-High clusters occurring in the morning than in the evening.
 
