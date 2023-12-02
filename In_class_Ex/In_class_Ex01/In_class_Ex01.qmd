@@ -28,7 +28,7 @@ pacman::p_load(tmap, sf, tidyverse)
 Firstly, we will import the dataset *Passenger Volume by Origin Destination Bus Stops* downloaded from LTA DataMall by using `read_csv()` of `readr` package.
 
 ```{r}
-odbus <- read.csv("data/aspatial/origin_destination_bus_202308.csv")
+odbus <- read_csv("data/aspatial/origin_destination_bus_202308.csv")
 ```
 
 A quick check of the `odbus` tibble data frame shows that the values in ORIGIN_PT_CODE and DESTINATION_PT_CODE are in numeric data type.
@@ -144,6 +144,11 @@ origin_data <- left_join(origin7_9, busstop_mpsz2019,
                          by = c('ORIGIN_PT_CODE' = 'BUS_STOP_N')) %>%
   rename(ORIGIN_BS = ORIGIN_PT_CODE,
          ORIGIN_SZ = SUBZONE_C)
+glimpse(origin_data)
+```
+
+```{r}
+colSums(is.na(origin_data))
 ```
 
 We will now check for duplicates:
@@ -163,6 +168,7 @@ And retain each unique record:
 
 ```{r}
 origin_data <- unique(origin_data)
+glimpse(origin_data)
 ```
 
 Next, we will update the `origin_data` with planning subzone codes:
