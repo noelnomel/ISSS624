@@ -12,19 +12,19 @@ editor: visual
 
 # 1. Overview
 
-In this take-home exercise, we will examine the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore.
+In this take-home exercise, we will examine the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore. Exploratory Spatial Data Analysis (ESDA) will be used to visualise and analyse bus ridership data by origin in October 2023. Next, Local Indicators of Spatial Association analysis will be conducted to uncover spatial and spatio-temporal mobility patterns of bus passengers in Singapore.
 
 # 2. The Data
 
 We will use the following data sets for this exercise:
 
 | S/N | Name of Data Set                                 | File type | Source                                                                            | Extracted to (file directory) |
-|--------|--------------------|-------------|-------------|----------------|
+|---------------|---------------|---------------|---------------|---------------|
 | 1   | Master Plan 2019 Subzone Boundary (Web)          | SHP       | [data.gov.sg](https://data.gov.sg/)                                               | /data/geospatial              |
 | 2   | Bus Stop Location                                | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/geospatial              |
 | 3   | Passenger Volume by Origin Destination Bus Stops | csv       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/aspatial                |
 
-## 2.1. Loading Relevant Packages
+## 2.1. Loading Relevant R Packages
 
 We will first load the following packages into R using the following code:
 
@@ -32,9 +32,21 @@ We will first load the following packages into R using the following code:
 pacman::p_load(sf, tmap, sfdep, tidyverse, knitr)
 ```
 
+These packages will serve the following purpose:
+
+-   `sf`: geospatial data handling
+
+-   `tmap`: thematic mapping
+
+-   `sfdep`: to compute spatial weights and local spatial association statistics
+
+-   `tidyverse`: non-spatial data handling
+
+-   `knitr`: for creating html table
+
 ## 2.2. Loading and Checking Data Sets
 
-First, we will load the `origin_destination_bus_202310` csv data into R as `odbus`:
+The first data set we will import is the *origin_destination_bus_202310* csv data. We will import it into R as `odbus` using `read_csv()` from the `readr` package:
 
 ```{r}
 odbus <- read_csv("data/aspatial/origin_destination_bus_202310.csv")
@@ -57,7 +69,7 @@ odbus$DESTINATION_PT_CODE <-
 glimpse(odbus)
 ```
 
-Next, we will load the `BusStop` SHP file into R as `busstop`:
+The second dataset we will import is the *BusStop* SHP file. This file will be imported into R as `busstop` using the `st_read()` function from the `sf` package:
 
 ```{r}
 busstop <- st_read(dsn="data/geospatial",
@@ -69,7 +81,7 @@ glimpse(busstop)
 
 > `st_transform` is used to project the coordinates of the simple feature onto the Singapore SVY21 coordinate system (EPSG:3414).
 
-Lastly, we will load the `Master Plan 2019 Subzone Boundary` SHP file into R as `mpsz2019`:
+Lastly, we will import the *Master Plan 2019 Subzone Boundary* SHP file. This file will be imported into R as `mpsz2019` using the `st_read()` function from the `sf` package:
 
 ```{r}
 mpsz2019 <- st_read(dsn="data/geospatial",
@@ -81,16 +93,18 @@ glimpse(mpsz2019)
 
 ## 2.3. Extracting Study Data
 
-In this exercise, we will focus on the passenger trips generated within the following peak travel periods:
+In this exercise, we will focus on the bus ridership by origin bus stop in the following peak travel periods:
 
 | Peak Period              | Bus Tap-on Time |
 |--------------------------|-----------------|
-| Weekday mornings         | 6:00 to 9:00    |
+| Weekday mornings         | 06:00 to 09:00  |
 | Weekday evenings         | 17:00 to 20:00  |
 | Weekend/holiday mornings | 11:00 to 14:00  |
 | Weekend/holiday evenings | 16:00 to 19:00  |
 
 We will extract each peak period separately using the following codes:
+
+Weekday morning peak:
 
 ```{r}
 ori_WD_AM <- odbus %>%
@@ -104,6 +118,8 @@ glimpse(ori_WD_AM)
 write_rds(ori_WD_AM, "data/rds/ori_WD_AM.rds")
 ```
 
+Weekday evening peak:
+
 ```{r}
 ori_WD_PM <- odbus %>%
   filter(DAY_TYPE == 'WEEKDAY') %>%
@@ -115,6 +131,8 @@ ori_WD_PM <- odbus %>%
 glimpse(ori_WD_PM)
 write_rds(ori_WD_PM, "data/rds/ori_WD_PM.rds")
 ```
+
+Weekend/holiday morning peak:
 
 ```{r}
 ori_WE_AM <- odbus %>%
@@ -128,6 +146,8 @@ glimpse(ori_WE_AM)
 write_rds(ori_WE_AM, "data/rds/ori_WE_AM.rds")
 ```
 
+Weekend/holiday evening peak:
+
 ```{r}
 ori_WE_PM <- odbus %>%
   filter(DAY_TYPE == 'WEEKENDS/HOLIDAY') %>%
@@ -140,7 +160,11 @@ glimpse(ori_WE_PM)
 write_rds(ori_WE_PM, "data/rds/ori_WE_PM.rds")
 ```
 
-# 3. Create Hexagon Layer of mpsz2019
+# 3. Create Hexagon Layer of `mpsz2019`
+
+Next, we will create a hexagon tessellation layer using `mpsz2019`. A hexagon layer is created to replace the irregular planning subzone polygons to reduce sampling bias[^2].
+
+[^2]: https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-whyhexagons.htm
 
 ```{r}
 # calculate cellsize using perpendicular distance from center to edge of 250m
@@ -170,18 +194,20 @@ qtm(hexagon)
 
 # 4. Geospatial Visualisation of Passenger Trips by Origin
 
-## 4.1. Weekday AM Peak Hours (by Origin)
+## 4.1. Geospatial Data Wrangling
 
-### 4.1.1. Geospatial Data Wrangling
+### 4.1.1. Weekday AM Peak Hours (by Origin)
 
-First, we have to
+Firstly, we perform a `left_join()` using `busstop` and `ori_WD_AM` to populate trips by origin bus stop to the full list of bus stops in Singapore. This generates NA values for bus stops where no origin trips were taken during weekday morning peak periods in October 2023. This retains the simple feature dataframe for the next step.
 
 ```{r}
 bs_ori_WD_AM <- left_join(busstop, ori_WD_AM,
                        by = c('BUS_STOP_N' = 'ORIGIN_PT_CODE'))
 
-glimpse(bs_ori_WD_AM)
+head(bs_ori_WD_AM)
 ```
+
+Next, we use `st_join` from the `sf` package to perform a spatial left join between the `hexagon` layer and the `bs_ori_WD_AM` simple feature dataframe. Bus stop coordinates that intersect with each hexagon polygon will be assigned the corresponding grid `id`.
 
 ```{r}
 WD_AM_map <- st_join(hexagon, bs_ori_WD_AM) %>%
@@ -189,6 +215,8 @@ WD_AM_map <- st_join(hexagon, bs_ori_WD_AM) %>%
 
 glimpse(WD_AM_map)
 ```
+
+Next, we check for duplicates in the resultant simple feature dataframe:
 
 ```{r}
 duplicates <- WD_AM_map %>%
@@ -199,11 +227,17 @@ duplicates <- WD_AM_map %>%
 head(duplicates, 20)
 ```
 
+First, using `glimpse()` we know that there are 20 duplicate records. We will use `head()` to display all 20 records to conduct a visual check.
+
+Next, we will remove the duplicate values:
+
 ```{r}
 WD_AM_map <- unique(WD_AM_map)
   
 glimpse(WD_AM_map)
 ```
+
+We will now check for the occurrence of multiple bus stops with the same hexagon grid:
 
 ```{r}
 by_id <- WD_AM_map %>%
@@ -214,6 +248,8 @@ by_id <- WD_AM_map %>%
 glimpse(by_id)
 ```
 
+It is observed that there are 4,931 records of such occurrences. We will sum all origin trips by each hexagon grid using the following code:
+
 ```{r}
 WD_AM_map <- WD_AM_map %>%
   group_by(id) %>%
@@ -222,29 +258,9 @@ WD_AM_map <- WD_AM_map %>%
 glimpse(WD_AM_map)
 ```
 
-## Visualising Geographical Distribution of Passenger Trips
+We repeat the above data wrangling steps for the remaining three study datasets:
 
-```{r}
-tmap_mode("view")
-tm_shape(WD_AM_map) +
-  tm_fill("TRIPS",
-          style = "quantile",
-          palette = "Blues",
-          id = "TRIPS") +
-  tm_borders(alpha = 0.5) +
-  tm_layout(main.title = "Passenger Trips During Weekday AM Peak (by Origin)",
-            main.title.position = "center",
-            main.title.size = 1) +
-  tm_scale_bar() +
-  tm_grid(alpha = 0.2)
-  #tm_credits("Source: Planning Subzone boundary from URA\n
-             #Passenger trip data from LTA")
-
-```
-
-# Passenger Trips During Weekday PM Peak Hours (by Origin)
-
-## Geospatial Data Wrangling
+### 4.1.2. Weekday PM Peak Hours (by Origin)
 
 ```{r}
 bs_ori_WD_PM <- left_join(busstop, ori_WD_PM,
@@ -292,26 +308,7 @@ WD_PM_map <- WD_PM_map %>%
 glimpse(WD_PM_map)
 ```
 
-## Visualising Geographical Distribution of Passenger Trips
-
-```{r}
-tmap_mode('view')
-tm_shape(WD_PM_map) +
-  tm_fill("TRIPS",
-          style = "quantile",
-          palette = "Greens",
-          id = "TRIPS") +
-  tm_borders(alpha = 0.5) +
-  tm_layout(main.title = "Passenger Trips During Weekday PM Peak (by Origin)",
-            main.title.position = "center",
-            main.title.size = 1) +
-  tm_scale_bar() +
-  tm_grid(alpha = 0.2) 
-```
-
-# Passenger Trips During Weekend AM Peak Hours (by Origin)
-
-## Geospatial Data Wrangling
+### 4.1.3. Weekend/Holiday AM Peak Hours (by Origin)
 
 ```{r}
 bs_ori_WE_AM <- left_join(busstop, ori_WE_AM,
@@ -359,28 +356,7 @@ WE_AM_map <- WE_AM_map %>%
 glimpse(WE_AM_map)
 ```
 
-## Visualising Geographical Distribution of Passenger Trips
-
-```{r}
-tmap_mode("view")
-tm_shape(WE_AM_map) +
-  tm_fill("TRIPS",
-          style = "quantile",
-          palette = "Reds",
-          id =  "TRIPS") +
-  tm_borders(alpha = 0.5) +
-  tm_layout(main.title = "Passenger Trips During Weekend AM Peak (by Origin)",
-            main.title.position = "center",
-            main.title.size = 1) +
-  tm_scale_bar() +
-  tm_grid(alpha = 0.2)
-  
-
-```
-
-# Passenger Trips During Weekend PM Peak Hours (by Origin)
-
-## Geospatial Data Wrangling
+### 4.1.4. Weekend/Holiday PM Peak Hours (by Origin)
 
 ```{r}
 bs_ori_WE_PM <- left_join(busstop, ori_WE_PM,
@@ -428,29 +404,164 @@ WE_PM_map <- WE_PM_map %>%
 glimpse(WE_PM_map)
 ```
 
-## Visualising Geographical Distribution of Passenger Trips
+## 4.2. Visualising Geographical Distribution of Passenger Trips
+
+### 4.2.1. Weekday AM Peak Hours (by Origin)
 
 ```{r}
-tmap_mode("view")
+tmap_mode("plot")
+tmap_options(check.and.fix = TRUE)
+tm_shape(WD_AM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Blues",
+          id = "TRIPS") +
+  tm_layout(main.title = "Trips by Origin on Weekday AM Peak Hours",
+            main.title.position = "center",
+            main.title.size = 1,) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+tm_shape(mpsz2019) +
+  tm_polygons(alpha = 0) +
+  tm_borders(alpha = 0.1)
+
+```
+
+By overlaying the mpsz2019 planning subzone polygons over the hexagon layer, we can obtain a clearer visualisation of where most of high ridership numbers originate from during morning peak period.
+
+Most of the high trip numbers occur in hexagon grids that occur in residential areas such as Toh Guan, Redhill, and Hougang. In contrast, the lowest trip numbers are observed in the city and industrial areas such as Tuas, Lim Chu Kang, and Changi West. Interestingly, there are some residential areas with lower observed trip numbers such as Serangoon Garden and Holland Road. This could be due to the higher presence of landed property in these estates, which is likely correlated to higher likelihood of car ownership. It can also be observed that there is one hexagon grid next to the Tuas checkpoint that has high trips recorded.
+
+### 4.2.2. Weekday PM Peak Hours (by Origin)
+
+```{r}
+tmap_mode('plot')
+tm_shape(WD_PM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Greens",
+          id = "TRIPS") +
+  tm_layout(main.title = "Trips by Origin on Weekday PM Peak Hours",
+            main.title.position = "center",
+            main.title.size = 1,) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+tm_shape(mpsz2019) +
+  tm_polygons(alpha = 0) +
+  tm_borders(alpha = 0.1)
+```
+
+From the visualisation above, we can observe the highest trip numbers in the southern region of Singapore, where a cluster of dark green hexagons are seen. This falls within the Chinatown, City Hall and Bugis subzones, where many workplaces are located. Higher trip numbers originating from these areas are expected during PM peak hours as that is when most people end work. Bus trips originating from residential areas appear to be lower during this period. Interestingly, even though many workplaces can be found in Tuas, low bus trip numbers are recorded during Weekday evening peak periods. This could be due to the provision of company transport for employees working in Tuas.
+
+### 4.2.3. Weekend/Holiday AM Peak Hours (by Origin)
+
+```{r}
+tmap_mode("plot")
+tm_shape(WE_AM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Reds",
+          id =  "TRIPS") +
+  tm_layout(main.title = "Trips by Origin on Weekend/Holidays AM Peak Hours",
+            main.title.position = "center",
+            main.title.size = 1,) +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar() +
+tm_shape(mpsz2019) +
+  tm_polygons(alpha = 0) +
+  tm_borders(alpha = 0.1)
+  
+
+```
+
+From the visualisation, high trip numbers can be observed to be occuring throughout Singapore on Weekend/Holiday morning peak periods, except in the western region of Joo Koon and Tuas. Some individual hexagon points that recorded high bus trips occur at the Turf Club, Changi Point, and Changi Airport. Many of the high trip numbers are recorded in the city area around Chinatown, Raffles Place, and Dhoby Ghaut. Low bus trip numbers are recorded in areas such as Lim Chu Kang, one-north, and Xilin.
+
+### 4.2.4. Weekend PM Peak Hours (by Origin)
+
+```{r}
+tmap_mode("plot")
 tm_shape(WE_PM_map) +
   tm_fill("TRIPS",
           style = "quantile",
           palette = "Oranges",
           id = "TRIPS") +
-  tm_borders(alpha = 0.5) +
-  tm_layout(main.title = "Passenger Trips During Weekend PM Peak (by Origin)",
+  tm_layout(main.title = "Trips by Origin on Weekend/Holidays PM Peak Hours",
             main.title.position = "center",
-            main.title.size = 1) +
+            main.title.size = 1,) +
+  tm_borders(alpha = 0.5) +
   tm_scale_bar() +
-  tm_grid(alpha = 0.2)
+tm_shape(mpsz2019) +
+  tm_polygons(alpha = 0) +
+  tm_borders(alpha = 0.1)
   
 ```
 
-# Local Indicators of Spatial Association (LISA) Analysis
+From the visualisation, high trip numbers can be observed to be occuring at different areas in Singapore on Weekend/Holiday evening peak periods. The western region of Joo Koon and Tuas remains relatively quiet with generally low bus trips recorded. Some individual hexagon points that recorded high bus trips occur at the Turf Club, Central Water Catchment, Changi Point and Changi Airport. Many of the high trip numbers are clustered around the city area around Chinatown, Raffles Place, and Dhoby Ghaut. Low bus trip numbers are recorded in areas such as Lim Chu Kang, Kranji, one-north, and Xilin.
+
+### 4.2.3. Comparison
+
+```{r}
+tmap_mode("view")
+WD_AM_plot <- tm_shape(WD_AM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Blues",
+          id = "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar()
+
+WD_PM_plot <- tm_shape(WD_PM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Greens",
+          id = "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar()
+
+WE_AM_plot <- tm_shape(WE_AM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Reds",
+          id =  "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar()
+
+WE_PM_plot <- tm_shape(WE_PM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Oranges",
+          id = "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_scale_bar()
+
+tmap_arrange(WD_AM_plot, WD_PM_plot, 
+             WE_AM_plot, WE_PM_plot, 
+             asp = 2, ncol = 2)
+```
+
+Plot layout:
+
+|                       |                       |
+|-----------------------|-----------------------|
+| Weekday AM Peak Hours | Weekday PM Peak Hours |
+| Weekend AM Peak Hours | Weekend PM Peak Hours |
+
+Plotting all four graphs together allows for easier comparison.
+
+First, comparing weekday morning and weekday evening trips, it is observed the the much higher highest trip number (569,969) is recorded in the evening as compared to in the morning (327,930). On the western, northern, and north-eastern ends, we can see that there are more grids with a higher number of trips recorded in the morning than in the evening. In contrast, more trips are recorded in the evening in the southern and city areas than in the morning.
+
+Next, comparing weekend morning and weekend evening trips, visually, the distribution looks rather similar.
+
+Next, comparing weekday morning and weekend morning trips, more trips are observed to originate from the city area on weekends than on weekdays.
+
+Lastly, comparing weekday evening and weekend evening trips, a slightly higher number of trips originating from the city area is observed on weekends than on weekdays. It also appears that slightly more trips originate from the eastern area of Singapore on weekends than on weekday evenings.
+
+# 5. Local Indicators of Spatial Association (LISA) Analysis
 
 Local Indicators of Spatial Association (LISA) evaluates the existence of clusters in the spatial arrangement of a given variable. We will apply the appropriate LISA methods to detect cluster and/or outlier from bus ridership by origin bus stop in Singapore.
 
-## Preparing Data
+## 5.1. Preparing Data
+
+First, we will prepare the datasets to be used for LISA analysis. This is because the original dataset used for mapping contained NA values in order for all hexagon grids to be shown on the map. We will use `drop_na()` to remove the NA values from the datasets.
 
 ```{r}
 WD_AM_lisa <- WD_AM_map %>%
@@ -476,35 +587,136 @@ WE_PM_lisa <- WE_PM_map %>%
   drop_na()
 ```
 
-## Deriving Contiguity Weights
+## 5.2. Visualising the Data
 
-We will use the following code to derive the contiguity weights using Queen's method:
+### 5.2.1. Weekday AM Peak Hours (by Origin)
+
+Using the weekday morning peak period data as an example, we use `qtm()` to do a quick plot for visualisation purposes.
 
 ```{r}
-WD_AM_knn <- WD_AM_lisa %>%
+qtm(WD_AM_lisa)
+```
+
+From the plot above, it is observed that there are many hexagon areas without neighbours after applying `drop_na()`. This is likely the same case with the remaining three datasets:
+
+### 5.2.2. Weekday PM Peak Hours (by Origin)
+
+```{r}
+qtm(WD_PM_lisa)
+```
+
+### 5.2.3. Weekend AM Peak Hours (by Origin)
+
+```{r}
+qtm(WE_AM_lisa)
+```
+
+### 5.2.4. Weekend PM Peak Hours (by Origin)
+
+```{r}
+qtm(WE_PM_lisa)
+```
+
+## 5.3. Deriving Contiguity Weights and Local Moran's I
+
+Based on the visualisations above, we will use inverse distance weights (IDW) method to derive the spatial weights for each dataset:
+
+### 5.3.1. Weekday AM Peak Hours (by Origin)
+
+```{r}
+WD_AM_idw <- WD_AM_lisa %>%
   mutate(nb = st_knn(geometry, k=8),
          wt = st_inverse_distance(nb, geometry,
                                    scale = 1,
                                    alpha = 1),
          .before = 1)
-WD_AM_knn
+WD_AM_idw
 ```
 
-# Computing Local Moran's I
-
-We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
+Using IDW, we will compute Local Moran's I on `TRIPS` based on 100 simulations for each study period. The code uses the `local_moran()` function from the `sfdep` package:
 
 ```{r}
-lisa_WD_AM <- WD_AM_knn %>%
+lisa_WD_AM <- WD_AM_idw %>%
   mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
          .before = 1) %>%
   unnest(local_moran)
 lisa_WD_AM
 ```
 
+We will repeat the above steps for the remaining datasets:
+
+### 5.3.2. Weekday PM Peak Hours (by Origin)
+
+```{r}
+WD_PM_idw <- WD_PM_lisa %>%
+  mutate(nb = st_knn(geometry, k=8),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+WD_PM_idw
+```
+
+```{r}
+lisa_WD_PM <- WD_PM_idw %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_WD_PM
+```
+
+### 5.3.3. Weekend AM Peak Hours (by Origin)
+
+```{r}
+WE_AM_idw <- WE_AM_lisa %>%
+  mutate(nb = st_knn(geometry, k=8),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+WE_AM_idw
+```
+
+```{r}
+lisa_WE_AM <- WE_AM_idw %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_WE_AM
+```
+
+### 5.3.4. Weekend PM Peak Hours (by Origin)
+
+```{r}
+WE_PM_idw <- WE_PM_lisa %>%
+  mutate(nb = st_knn(geometry, k=8),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+WE_PM_idw
+```
+
+```{r}
+lisa_WE_PM <- WE_PM_idw %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_WE_PM
+```
+
+## 5.4. Visualising LISA
+
+Lastly, we will visualise the results of the LISA analysis on choropleth maps. A LISA map is a categorical map showing outliers and clusters. There are two types of outliers, High-Low and Low-High, and two types of clusters, **High-High** and **Low-Low**. LISA map is an interpreted map by combining local Moran's I of geographical areas and their respective p-values.
+
+One map will be plotted for each study period, and each map will only display significant associations (i.e. p-value \< 0.05).
+
+### 5.4.1. Weekday AM Peak Hours (by Origin)
+
 ```{r}
 lisa_WD_AM_sig <- lisa_WD_AM  %>%
   filter(p_ii_sim < 0.05)
+
 tmap_mode("plot")
 tm_shape(hexagon) + 
   tm_fill(alpha = 0.1) +
@@ -522,35 +734,16 @@ tm_shape(lisa_WD_AM_sig) +
   tm_grid(alpha = 0.2)
 ```
 
-## Deriving Contiguity Weights
+It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Marina Bay, and Changi areas. The High-High clusters appear in residential areas such as Woodlands, Choa Chu Kang, Punggol, and Serangoon.
 
-We will use the following code to derive the contiguity weights using Queen's method:
+However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in the Tuas and Mandai areas. There are also Low-High outliers found in the residential areas such as Jurong, Woodlands, and Ang Mo Kio.
 
-```{r}
-WD_PM_knn <- WD_PM_lisa %>%
-  mutate(nb = st_knn(geometry, k=8),
-         wt = st_inverse_distance(nb, geometry,
-                                   scale = 1,
-                                   alpha = 1),
-         .before = 1)
-WD_PM_knn
-```
-
-# Computing Local Moran's I
-
-We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
-
-```{r}
-lisa_WD_PM <- WD_PM_knn %>%
-  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
-         .before = 1) %>%
-  unnest(local_moran)
-lisa_WD_PM
-```
+### 5.4.2. Weekday PM Peak Hours (by Origin)
 
 ```{r}
 lisa_WD_PM_sig <- lisa_WD_PM  %>%
   filter(p_ii_sim < 0.05)
+
 tmap_mode("plot")
 tm_shape(hexagon) + 
   tm_fill(alpha = 0.1) +
@@ -568,35 +761,16 @@ tm_shape(lisa_WD_PM_sig) +
   tm_grid(alpha = 0.2)
 ```
 
-## Deriving Contiguity Weights
+It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.
 
-We will use the following code to derive the contiguity weights using Queen's method:
+However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Jurong, Kranji, Woodlands, and Ang Mo Kio.
 
-```{r}
-WE_AM_knn <- WE_AM_lisa %>%
-  mutate(nb = st_knn(geometry, k=8),
-         wt = st_inverse_distance(nb, geometry,
-                                   scale = 1,
-                                   alpha = 1),
-         .before = 1)
-WE_AM_knn
-```
-
-# Computing Local Moran's I
-
-We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
-
-```{r}
-lisa_WE_AM <- WE_AM_knn %>%
-  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
-         .before = 1) %>%
-  unnest(local_moran)
-lisa_WE_AM
-```
+### 5.4.3. Weekend AM Peak Hours (by Origin)
 
 ```{r}
 lisa_WE_AM_sig <- lisa_WE_AM  %>%
   filter(p_ii_sim < 0.05)
+
 tmap_mode("plot")
 tm_shape(hexagon) + 
   tm_fill(alpha = 0.1) +
@@ -614,35 +788,16 @@ tm_shape(lisa_WE_AM_sig) +
   tm_grid(alpha = 0.2)
 ```
 
-## Deriving Contiguity Weights
+It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Seletar, Tampines, and Changi areas. The High-High clusters appear in residential areas such as Clementi, Bukit Batok, Choa Chu Kang, Punggol, and Serangoon. Some High-High clusters are also observed in the city area around Bugis.
 
-We will use the following code to derive the contiguity weights using Queen's method:
+However, there are some High-Low and Low-High outliers that are observed, although they appear more sporadic. Some of the High-Low outliers are observed near the Low-Low clusters in the Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Jurong, Choa Chu Kang, Woodlands, and Ang Mo Kio. Some Low-High outliers are also observed near High-High clusters in the city area.
 
-```{r}
-WE_PM_knn <- WE_PM_lisa %>%
-  mutate(nb = st_knn(geometry, k=8),
-         wt = st_inverse_distance(nb, geometry,
-                                   scale = 1,
-                                   alpha = 1),
-         .before = 1)
-WE_PM_knn
-```
-
-# Computing Local Moran's I
-
-We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
-
-```{r}
-lisa_WE_PM <- WE_PM_knn %>%
-  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
-         .before = 1) %>%
-  unnest(local_moran)
-lisa_WE_PM
-```
+### 5.4.4. Weekend PM Peak Hours (by Origin)
 
 ```{r}
 lisa_WE_PM_sig <- lisa_WE_PM  %>%
   filter(p_ii_sim < 0.05)
+
 tmap_mode("plot")
 tm_shape(hexagon) + 
   tm_fill(alpha = 0.1) +
@@ -659,3 +814,95 @@ tm_shape(lisa_WE_PM_sig) +
   tm_scale_bar() +
   tm_grid(alpha = 0.2)
 ```
+
+It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.
+
+However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Clementi, Choa Chu Kang, Woodlands, and Ang Mo Kio. Some Low-High outliers are also observed near the High-High clusters in the city area.
+
+### 5.4.5. Comparison
+
+```{r}
+tmap_mode("plot")
+lisa_WD_AM_plot <- tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WD_AM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WD_AM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4) +
+  tm_layout(main.title = "Weekday AM Peak",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+
+lisa_WD_PM_plot <- tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WD_PM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WD_PM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)+
+  tm_layout(main.title = "Weekday PM Peak",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+
+  
+lisa_WE_AM_plot <- tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WE_AM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WE_AM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)+
+  tm_layout(main.title = "Weekend AM Peak",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+  
+  
+lisa_WE_PM_plot <- tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WE_PM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WE_PM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)+
+  tm_layout(main.title = "Weekend AM Peak",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+
+tmap_arrange(lisa_WD_AM_plot, lisa_WD_PM_plot,
+             lisa_WE_AM_plot, lisa_WE_PM_plot,
+             asp = 2, ncol = 2)
+```
+
+Plot layout:
+
+|                       |                       |
+|-----------------------|-----------------------|
+| Weekday AM Peak Hours | Weekday PM Peak Hours |
+| Weekend AM Peak Hours | Weekend PM Peak Hours |
+
+: Plotting all four graphs together allows for easier comparison.
+
+Firstly, the graphs for Weekday AM and Weekday PM are compared. It is observed that there are less Low-Low and High-High clusters occurring in the evening than in the morning. There are more closely situated Low-Low and High-High clusters occurring in the morning than in the evening.
+
+Next, comparing the Weekend AM and Weekend PM graphs, it is observed that there are more Low-Low and High-High clusters occurring in the morning than in the evening. These observations can be seen around Woodlands and Changi for Low-Low clusters and around Clementi and Punggol areas. However, more occurrence of Low-Low clusters is observed in the Lim Chu Kang area in the evening than in the morning.
+
+Next, comparing the Weekday AM and Weekend AM graphs, it is observed that the Low-Low clusters, generally occur in the same locations on weekdays and weekends. There appears to be more closely situated High-High clusters occurring on weekdays than on weekends. High-High clusters in the city most likely occur on weekends only.
+
+Lastly, comparing the Weekday PM and Weekend PM graphs, it is observed that the Low-Low clusters generally occur in similar locations on weekdays and weekends. Some slight difference can be observed in the Pasir Panjang region where more Low-Low clusters are observed on weekends than on weekdays. There appears to be more High-High clusters occurring on weekends than on weekdays, especially in the city area.
