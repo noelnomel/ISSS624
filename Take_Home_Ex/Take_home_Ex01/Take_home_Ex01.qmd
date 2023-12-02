@@ -9,3 +9,653 @@ execute:
   warning: false # do not display warning message
 editor: visual
 ---
+
+# 1. Overview
+
+In this take-home exercise, we will examine the spatial and spatio-temporal mobility patterns of public bus passengers in Singapore.
+
+# 2. The Data
+
+We will use the following data sets for this exercise:
+
+| S/N | Name of Data Set                                 | File type | Source                                                                            | Extracted to (file directory) |
+|--------|--------------------|-------------|-------------|----------------|
+| 1   | Master Plan 2019 Subzone Boundary (Web)          | SHP       | [data.gov.sg](https://data.gov.sg/)                                               | /data/geospatial              |
+| 2   | Bus Stop Location                                | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/geospatial              |
+| 3   | Passenger Volume by Origin Destination Bus Stops | csv       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/aspatial                |
+
+## 2.1. Loading Relevant Packages
+
+We will first load the following packages into R using the following code:
+
+```{r}
+pacman::p_load(sf, tmap, sfdep, tidyverse, knitr)
+```
+
+## 2.2. Loading and Checking Data Sets
+
+First, we will load the `origin_destination_bus_202310` csv data into R as `odbus`:
+
+```{r}
+odbus <- read_csv("data/aspatial/origin_destination_bus_202310.csv")
+glimpse(odbus)
+```
+
+> Note: use **`read_csv()`** from the `readr` package, which is part of the core `tidyverse`, instead of `read.csv()` from the R base package. `read_csv()` is typically faster, produces tibble tables and are more reproducible[^1].
+
+[^1]: https://r4ds.had.co.nz/data-import.html (Section 11.2.1)
+
+It is observed that `ORIGIN_PT_CODE` and `DESTINATION_PT_CODE` are both recognised as integers. Since these are bus stop identifiers, they should be converted to factor type using the following code:
+
+```{r}
+odbus$ORIGIN_PT_CODE <-
+  as.factor(odbus$ORIGIN_PT_CODE) 
+
+odbus$DESTINATION_PT_CODE <-
+  as.factor(odbus$DESTINATION_PT_CODE)
+
+glimpse(odbus)
+```
+
+Next, we will load the `BusStop` SHP file into R as `busstop`:
+
+```{r}
+busstop <- st_read(dsn="data/geospatial",
+                   layer = "BusStop") %>%
+  st_transform(crs = 3414)
+
+glimpse(busstop)
+```
+
+> `st_transform` is used to project the coordinates of the simple feature onto the Singapore SVY21 coordinate system (EPSG:3414).
+
+Lastly, we will load the `Master Plan 2019 Subzone Boundary` SHP file into R as `mpsz2019`:
+
+```{r}
+mpsz2019 <- st_read(dsn="data/geospatial",
+                   layer = "MPSZ-2019") %>%
+  st_transform(crs=3414)
+
+glimpse(mpsz2019)
+```
+
+## 2.3. Extracting Study Data
+
+In this exercise, we will focus on the passenger trips generated within the following peak travel periods:
+
+| Peak Period              | Bus Tap-on Time |
+|--------------------------|-----------------|
+| Weekday mornings         | 6:00 to 9:00    |
+| Weekday evenings         | 17:00 to 20:00  |
+| Weekend/holiday mornings | 11:00 to 14:00  |
+| Weekend/holiday evenings | 16:00 to 19:00  |
+
+We will extract each peak period separately using the following codes:
+
+```{r}
+ori_WD_AM <- odbus %>%
+  filter(DAY_TYPE == 'WEEKDAY') %>%
+  filter(TIME_PER_HOUR >= 6 &
+          TIME_PER_HOUR <= 9) %>%
+  group_by(ORIGIN_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+
+glimpse(ori_WD_AM)
+write_rds(ori_WD_AM, "data/rds/ori_WD_AM.rds")
+```
+
+```{r}
+ori_WD_PM <- odbus %>%
+  filter(DAY_TYPE == 'WEEKDAY') %>%
+  filter(TIME_PER_HOUR >= 17 &
+          TIME_PER_HOUR <= 20) %>%
+  group_by(ORIGIN_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+
+glimpse(ori_WD_PM)
+write_rds(ori_WD_PM, "data/rds/ori_WD_PM.rds")
+```
+
+```{r}
+ori_WE_AM <- odbus %>%
+  filter(DAY_TYPE == 'WEEKENDS/HOLIDAY') %>%
+  filter(TIME_PER_HOUR >= 11 &
+          TIME_PER_HOUR <= 14) %>%
+  group_by(ORIGIN_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+
+glimpse(ori_WE_AM)
+write_rds(ori_WE_AM, "data/rds/ori_WE_AM.rds")
+```
+
+```{r}
+ori_WE_PM <- odbus %>%
+  filter(DAY_TYPE == 'WEEKENDS/HOLIDAY') %>%
+  filter(TIME_PER_HOUR >= 16 &
+          TIME_PER_HOUR <= 19) %>%
+  group_by(ORIGIN_PT_CODE) %>%
+  summarise(TRIPS = sum(TOTAL_TRIPS))
+
+glimpse(ori_WE_PM)
+write_rds(ori_WE_PM, "data/rds/ori_WE_PM.rds")
+```
+
+# 3. Create Hexagon Layer of mpsz2019
+
+```{r}
+# calculate cellsize using perpendicular distance from center to edge of 250m
+cs <- 2 * 250
+
+# make hexagonal tesellation and add grid ID
+mpsz2019_grid <- st_make_grid(mpsz2019, c(cs,cs), square = FALSE) %>%
+  st_sf() %>%
+  mutate(id = row_number())
+
+mpsz2019_grid$id <- as.factor(mpsz2019_grid$id)
+
+# determine centroid for each hexagon
+cent <- st_centroid(mpsz2019_grid)
+
+# determine the intersection of centroids with mpsz2019
+mpsz2019_map <- st_intersection(cent, mpsz2019)
+
+cent_no_geom <- st_drop_geometry(mpsz2019_map)
+
+# create hexagon layer, drop_na() to suppress cells outside the country
+hexagon <- left_join(mpsz2019_grid, cent_no_geom) %>%
+  drop_na()
+
+qtm(hexagon)
+```
+
+# 4. Geospatial Visualisation of Passenger Trips by Origin
+
+## 4.1. Weekday AM Peak Hours (by Origin)
+
+### 4.1.1. Geospatial Data Wrangling
+
+First, we have to
+
+```{r}
+bs_ori_WD_AM <- left_join(busstop, ori_WD_AM,
+                       by = c('BUS_STOP_N' = 'ORIGIN_PT_CODE'))
+
+glimpse(bs_ori_WD_AM)
+```
+
+```{r}
+WD_AM_map <- st_join(hexagon, bs_ori_WD_AM) %>%
+  select(id, BUS_STOP_N, TRIPS, geometry)
+
+glimpse(WD_AM_map)
+```
+
+```{r}
+duplicates <- WD_AM_map %>%
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+head(duplicates, 20)
+```
+
+```{r}
+WD_AM_map <- unique(WD_AM_map)
+  
+glimpse(WD_AM_map)
+```
+
+```{r}
+by_id <- WD_AM_map %>%
+  group_by(id) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+glimpse(by_id)
+```
+
+```{r}
+WD_AM_map <- WD_AM_map %>%
+  group_by(id) %>%
+  summarise(TRIPS = sum(TRIPS))
+
+glimpse(WD_AM_map)
+```
+
+## Visualising Geographical Distribution of Passenger Trips
+
+```{r}
+tmap_mode("view")
+tm_shape(WD_AM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Blues",
+          id = "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Passenger Trips During Weekday AM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+  #tm_credits("Source: Planning Subzone boundary from URA\n
+             #Passenger trip data from LTA")
+
+```
+
+# Passenger Trips During Weekday PM Peak Hours (by Origin)
+
+## Geospatial Data Wrangling
+
+```{r}
+bs_ori_WD_PM <- left_join(busstop, ori_WD_PM,
+                       by = c('BUS_STOP_N' = 'ORIGIN_PT_CODE'))
+
+glimpse(bs_ori_WD_PM)
+```
+
+```{r}
+WD_PM_map <- st_join(hexagon, bs_ori_WD_PM) %>%
+  select(id, BUS_STOP_N, TRIPS, geometry)
+
+glimpse(WD_PM_map)
+```
+
+```{r}
+duplicates <- WD_PM_map %>%
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+head(duplicates, 20)
+```
+
+```{r}
+WD_PM_map <- unique(WD_PM_map)
+  
+glimpse(WD_PM_map)
+```
+
+```{r}
+by_id <- WD_PM_map %>%
+  group_by(id) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+glimpse(by_id)
+```
+
+```{r}
+WD_PM_map <- WD_PM_map %>%
+  group_by(id) %>%
+  summarise(TRIPS = sum(TRIPS))
+
+glimpse(WD_PM_map)
+```
+
+## Visualising Geographical Distribution of Passenger Trips
+
+```{r}
+tmap_mode('view')
+tm_shape(WD_PM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Greens",
+          id = "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Passenger Trips During Weekday PM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2) 
+```
+
+# Passenger Trips During Weekend AM Peak Hours (by Origin)
+
+## Geospatial Data Wrangling
+
+```{r}
+bs_ori_WE_AM <- left_join(busstop, ori_WE_AM,
+                       by = c('BUS_STOP_N' = 'ORIGIN_PT_CODE'))
+
+glimpse(bs_ori_WE_AM)
+```
+
+```{r}
+WE_AM_map <- st_join(hexagon, bs_ori_WE_AM) %>%
+  select(id, BUS_STOP_N, TRIPS, geometry)
+
+glimpse(WE_AM_map)
+```
+
+```{r}
+duplicates <- WE_AM_map %>%
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+head(duplicates, 20)
+```
+
+```{r}
+WE_AM_map <- unique(WE_AM_map)
+  
+glimpse(WE_AM_map)
+```
+
+```{r}
+by_id <- WE_AM_map %>%
+  group_by(id) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+glimpse(by_id)
+```
+
+```{r}
+WE_AM_map <- WE_AM_map %>%
+  group_by(id) %>%
+  summarise(TRIPS = sum(TRIPS))
+
+glimpse(WE_AM_map)
+```
+
+## Visualising Geographical Distribution of Passenger Trips
+
+```{r}
+tmap_mode("view")
+tm_shape(WE_AM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Reds",
+          id =  "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Passenger Trips During Weekend AM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+  
+
+```
+
+# Passenger Trips During Weekend PM Peak Hours (by Origin)
+
+## Geospatial Data Wrangling
+
+```{r}
+bs_ori_WE_PM <- left_join(busstop, ori_WE_PM,
+                       by = c('BUS_STOP_N' = 'ORIGIN_PT_CODE'))
+
+glimpse(bs_ori_WE_PM)
+```
+
+```{r}
+WE_PM_map <- st_join(hexagon, bs_ori_WE_PM) %>%
+  select(id, BUS_STOP_N, TRIPS, geometry)
+
+glimpse(WE_PM_map)
+```
+
+```{r}
+duplicates <- WE_PM_map %>%
+  group_by_all() %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+glimpse(duplicates)
+```
+
+```{r}
+WE_PM_map <- unique(WE_PM_map)
+  
+glimpse(WE_PM_map)
+```
+
+```{r}
+by_id <- WE_PM_map %>%
+  group_by(id) %>%
+  filter(n() > 1) %>%
+  ungroup()
+
+glimpse(by_id)
+```
+
+```{r}
+WE_PM_map <- WE_PM_map %>%
+  group_by(id) %>%
+  summarise(TRIPS = sum(TRIPS))
+
+glimpse(WE_PM_map)
+```
+
+## Visualising Geographical Distribution of Passenger Trips
+
+```{r}
+tmap_mode("view")
+tm_shape(WE_PM_map) +
+  tm_fill("TRIPS",
+          style = "quantile",
+          palette = "Oranges",
+          id = "TRIPS") +
+  tm_borders(alpha = 0.5) +
+  tm_layout(main.title = "Passenger Trips During Weekend PM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+  
+```
+
+# Local Indicators of Spatial Association (LISA) Analysis
+
+Local Indicators of Spatial Association (LISA) evaluates the existence of clusters in the spatial arrangement of a given variable. We will apply the appropriate LISA methods to detect cluster and/or outlier from bus ridership by origin bus stop in Singapore.
+
+## Preparing Data
+
+```{r}
+WD_AM_lisa <- WD_AM_map %>%
+  ungroup() %>%
+  drop_na()
+```
+
+```{r}
+WD_PM_lisa <- WD_PM_map %>%
+  ungroup() %>%
+  drop_na()
+```
+
+```{r}
+WE_AM_lisa <- WE_AM_map %>%
+  ungroup() %>%
+  drop_na()
+```
+
+```{r}
+WE_PM_lisa <- WE_PM_map %>%
+  ungroup() %>%
+  drop_na()
+```
+
+## Deriving Contiguity Weights
+
+We will use the following code to derive the contiguity weights using Queen's method:
+
+```{r}
+WD_AM_knn <- WD_AM_lisa %>%
+  mutate(nb = st_knn(geometry, k=8),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+WD_AM_knn
+```
+
+# Computing Local Moran's I
+
+We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
+
+```{r}
+lisa_WD_AM <- WD_AM_knn %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_WD_AM
+```
+
+```{r}
+lisa_WD_AM_sig <- lisa_WD_AM  %>%
+  filter(p_ii_sim < 0.05)
+tmap_mode("plot")
+tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WD_AM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WD_AM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4) +
+  tm_layout(main.title = "LISA Analysis of Trips During Weekday AM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+```
+
+## Deriving Contiguity Weights
+
+We will use the following code to derive the contiguity weights using Queen's method:
+
+```{r}
+WD_PM_knn <- WD_PM_lisa %>%
+  mutate(nb = st_knn(geometry, k=8),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+WD_PM_knn
+```
+
+# Computing Local Moran's I
+
+We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
+
+```{r}
+lisa_WD_PM <- WD_PM_knn %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_WD_PM
+```
+
+```{r}
+lisa_WD_PM_sig <- lisa_WD_PM  %>%
+  filter(p_ii_sim < 0.05)
+tmap_mode("plot")
+tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WD_PM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WD_PM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)+
+  tm_layout(main.title = "LISA Analysis of Trips During Weekday PM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+```
+
+## Deriving Contiguity Weights
+
+We will use the following code to derive the contiguity weights using Queen's method:
+
+```{r}
+WE_AM_knn <- WE_AM_lisa %>%
+  mutate(nb = st_knn(geometry, k=8),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+WE_AM_knn
+```
+
+# Computing Local Moran's I
+
+We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
+
+```{r}
+lisa_WE_AM <- WE_AM_knn %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_WE_AM
+```
+
+```{r}
+lisa_WE_AM_sig <- lisa_WE_AM  %>%
+  filter(p_ii_sim < 0.05)
+tmap_mode("plot")
+tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WE_AM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WE_AM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)+
+  tm_layout(main.title = "LISA Analysis of Trips During Weekend AM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+```
+
+## Deriving Contiguity Weights
+
+We will use the following code to derive the contiguity weights using Queen's method:
+
+```{r}
+WE_PM_knn <- WE_PM_lisa %>%
+  mutate(nb = st_knn(geometry, k=8),
+         wt = st_inverse_distance(nb, geometry,
+                                   scale = 1,
+                                   alpha = 1),
+         .before = 1)
+WE_PM_knn
+```
+
+# Computing Local Moran's I
+
+We will use the following code to compute Local Moran's I on GDPPC at the county level, using the local_moran() function from sfdep. Contiguity weights using the Queen's method is used in the code below:
+
+```{r}
+lisa_WE_PM <- WE_PM_knn %>%
+  mutate(local_moran = local_moran(TRIPS, nb, wt, nsim = 99),
+         .before = 1) %>%
+  unnest(local_moran)
+lisa_WE_PM
+```
+
+```{r}
+lisa_WE_PM_sig <- lisa_WE_PM  %>%
+  filter(p_ii_sim < 0.05)
+tmap_mode("plot")
+tm_shape(hexagon) + 
+  tm_fill(alpha = 0.1) +
+  tm_borders(alpha = 0.1) +
+tm_shape(lisa_WE_PM) +
+  tm_polygons() +
+  tm_borders(alpha = 0.5) +
+tm_shape(lisa_WE_PM_sig) +
+  tm_fill("mean") + 
+  tm_borders(alpha = 0.4)+
+  tm_layout(main.title = "LISA Analysis of Trips During Weekend AM Peak (by Origin)",
+            main.title.position = "center",
+            main.title.size = 1) +
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
+```
