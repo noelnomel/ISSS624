@@ -410,7 +410,6 @@ glimpse(WE_PM_map)
 
 ```{r}
 tmap_mode("plot")
-tmap_options(check.and.fix = TRUE)
 tm_shape(WD_AM_map) +
   tm_fill("TRIPS",
           style = "quantile",
@@ -421,10 +420,10 @@ tm_shape(WD_AM_map) +
             main.title.size = 1,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar() +
+  tm_grid(alpha = 0.2) +
 tm_shape(mpsz2019) +
   tm_polygons(alpha = 0) +
-  tm_borders(alpha = 0.1)
-
+  tm_borders(alpha = 0.1) 
 ```
 
 By overlaying the mpsz2019 planning subzone polygons over the hexagon layer, we can obtain a clearer visualisation of where most of high ridership numbers originate from during morning peak period.
@@ -445,9 +444,10 @@ tm_shape(WD_PM_map) +
             main.title.size = 1,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar() +
+  tm_grid(alpha = 0.2) +
 tm_shape(mpsz2019) +
   tm_polygons(alpha = 0) +
-  tm_borders(alpha = 0.1)
+  tm_borders(alpha = 0.1) 
 ```
 
 From the visualisation above, we can observe the highest trip numbers in the southern region of Singapore, where a cluster of dark green hexagons are seen. This falls within the Chinatown, City Hall and Bugis subzones, where many workplaces are located. Higher trip numbers originating from these areas are expected during PM peak hours as that is when most people end work. Bus trips originating from residential areas appear to be lower during this period. Interestingly, even though many workplaces can be found in Tuas, low bus trip numbers are recorded during Weekday evening peak periods. This could be due to the provision of company transport for employees working in Tuas.
@@ -466,11 +466,11 @@ tm_shape(WE_AM_map) +
             main.title.size = 1,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar() +
+  tm_grid(alpha = 0.2) +
 tm_shape(mpsz2019) +
   tm_polygons(alpha = 0) +
-  tm_borders(alpha = 0.1)
-  
-
+  tm_borders(alpha = 0.1) +
+  tm_grid(alpha = 0.2)
 ```
 
 From the visualisation, high trip numbers can be observed to be occuring throughout Singapore on Weekend/Holiday morning peak periods, except in the western region of Joo Koon and Tuas. Some individual hexagon points that recorded high bus trips occur at the Turf Club, Changi Point, and Changi Airport. Many of the high trip numbers are recorded in the city area around Chinatown, Raffles Place, and Dhoby Ghaut. Low bus trip numbers are recorded in areas such as Lim Chu Kang, one-north, and Xilin.
@@ -489,9 +489,10 @@ tm_shape(WE_PM_map) +
             main.title.size = 1,) +
   tm_borders(alpha = 0.5) +
   tm_scale_bar() +
+  tm_grid(alpha = 0.2) +
 tm_shape(mpsz2019) +
   tm_polygons(alpha = 0) +
-  tm_borders(alpha = 0.1)
+  tm_borders(alpha = 0.05) 
   
 ```
 
@@ -500,6 +501,9 @@ From the visualisation, high trip numbers can be observed to be occuring at diff
 ### 4.2.3. Comparison
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+
 tmap_mode("plot")
 WD_AM_plot <- tm_shape(WD_AM_map) +
   tm_fill("TRIPS",
@@ -512,7 +516,8 @@ WD_AM_plot <- tm_shape(WD_AM_map) +
             legend.height = 0.45,
             legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
-  tm_scale_bar()
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
 
 WD_PM_plot <- tm_shape(WD_PM_map) +
   tm_fill("TRIPS",
@@ -525,7 +530,8 @@ WD_PM_plot <- tm_shape(WD_PM_map) +
             legend.height = 0.45,
             legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
-  tm_scale_bar()
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
 
 WE_AM_plot <- tm_shape(WE_AM_map) +
   tm_fill("TRIPS",
@@ -538,7 +544,8 @@ WE_AM_plot <- tm_shape(WE_AM_map) +
             legend.height = 0.45,
             legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
-  tm_scale_bar()
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
 
 WE_PM_plot <- tm_shape(WE_PM_map) +
   tm_fill("TRIPS",
@@ -551,7 +558,8 @@ WE_PM_plot <- tm_shape(WE_PM_map) +
             legend.height = 0.45,
             legend.width = 0.35,) +
   tm_borders(alpha = 0.5) +
-  tm_scale_bar()
+  tm_scale_bar() +
+  tm_grid(alpha = 0.2)
 
 tmap_arrange(WD_AM_plot, WD_PM_plot, 
              WE_AM_plot, WE_PM_plot, 
@@ -630,9 +638,11 @@ qtm(WE_AM_lisa)
 qtm(WE_PM_lisa)
 ```
 
-## 5.3. Deriving Contiguity Weights and Local Moran's I
+## 5.3. Deriving Spatial Weights and Local Moran's I
 
-Based on the visualisations above, we will use inverse distance weights (IDW) method to derive the spatial weights for each dataset:
+Based on the visualisations above, we will use inverse distance weights (IDW) method to derive the spatial weights for each dataset. IDW assumes that each measured point has a local influence that diminishes with distance. It gives greater weights to points closest to the prediction location, and the weights diminish as a function of distance[^3].
+
+[^3]: https://pro.arcgis.com/en/pro-app/latest/help/analysis/geostatistical-analyst/how-inverse-distance-weighted-interpolation-works.htm
 
 ### 5.3.1. Weekday AM Peak Hours (by Origin)
 
@@ -747,7 +757,9 @@ tm_shape(lisa_WD_AM_sig) +
   tm_grid(alpha = 0.2)
 ```
 
-It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Marina Bay, and Changi areas. The High-High clusters appear in residential areas such as Woodlands, Choa Chu Kang, Punggol, and Serangoon.
+It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.
+
+We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Marina Bay, and Changi areas. The High-High clusters appear in residential areas such as Woodlands, Choa Chu Kang, Punggol, and Serangoon.
 
 However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in the Tuas and Mandai areas. There are also Low-High outliers found in the residential areas such as Jurong, Woodlands, and Ang Mo Kio.
 
@@ -774,7 +786,9 @@ tm_shape(lisa_WD_PM_sig) +
   tm_grid(alpha = 0.2)
 ```
 
-It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.
+It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.
+
+We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.
 
 However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Jurong, Kranji, Woodlands, and Ang Mo Kio.
 
@@ -801,7 +815,9 @@ tm_shape(lisa_WE_AM_sig) +
   tm_grid(alpha = 0.2)
 ```
 
-It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Seletar, Tampines, and Changi areas. The High-High clusters appear in residential areas such as Clementi, Bukit Batok, Choa Chu Kang, Punggol, and Serangoon. Some High-High clusters are also observed in the city area around Bugis.
+It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.
+
+We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Seletar, Tampines, and Changi areas. The High-High clusters appear in residential areas such as Clementi, Bukit Batok, Choa Chu Kang, Punggol, and Serangoon. Some High-High clusters are also observed in the city area around Bugis.
 
 However, there are some High-Low and Low-High outliers that are observed, although they appear more sporadic. Some of the High-Low outliers are observed near the Low-Low clusters in the Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Jurong, Choa Chu Kang, Woodlands, and Ang Mo Kio. Some Low-High outliers are also observed near High-High clusters in the city area.
 
@@ -828,13 +844,18 @@ tm_shape(lisa_WE_PM_sig) +
   tm_grid(alpha = 0.2)
 ```
 
-It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.
+It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.
+
+We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.
 
 However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Clementi, Choa Chu Kang, Woodlands, and Ang Mo Kio. Some Low-High outliers are also observed near the High-High clusters in the city area.
 
 ### 5.4.5. Comparison
 
 ```{r}
+#| code-fold: true
+#| code-summary: "Show the code"
+
 tmap_mode("plot")
 lisa_WD_AM_plot <- tm_shape(hexagon) + 
   tm_fill(alpha = 0.1) +

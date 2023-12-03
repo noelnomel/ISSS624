@@ -229,7 +229,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#weekend-am-peak-hours-by-origin" id="toc-weekend-am-peak-hours-by-origin" class="nav-link" data-scroll-target="#weekend-am-peak-hours-by-origin">5.2.3. Weekend AM Peak Hours (by Origin)</a></li>
   <li><a href="#weekend-pm-peak-hours-by-origin-1" id="toc-weekend-pm-peak-hours-by-origin-1" class="nav-link" data-scroll-target="#weekend-pm-peak-hours-by-origin-1">5.2.4. Weekend PM Peak Hours (by Origin)</a></li>
   </ul></li>
-  <li><a href="#deriving-contiguity-weights-and-local-morans-i" id="toc-deriving-contiguity-weights-and-local-morans-i" class="nav-link" data-scroll-target="#deriving-contiguity-weights-and-local-morans-i">5.3. Deriving Contiguity Weights and Local Moran’s I</a>
+  <li><a href="#deriving-spatial-weights-and-local-morans-i" id="toc-deriving-spatial-weights-and-local-morans-i" class="nav-link" data-scroll-target="#deriving-spatial-weights-and-local-morans-i">5.3. Deriving Spatial Weights and Local Moran’s I</a>
   <ul class="collapse">
   <li><a href="#weekday-am-peak-hours-by-origin-3" id="toc-weekday-am-peak-hours-by-origin-3" class="nav-link" data-scroll-target="#weekday-am-peak-hours-by-origin-3">5.3.1. Weekday AM Peak Hours (by Origin)</a></li>
   <li><a href="#weekday-pm-peak-hours-by-origin-3" id="toc-weekday-pm-peak-hours-by-origin-3" class="nav-link" data-scroll-target="#weekday-pm-peak-hours-by-origin-3">5.3.2. Weekday PM Peak Hours (by Origin)</a></li>
@@ -1025,20 +1025,20 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((2917.538 22821.26..., POLYGON ((2917.53
 <h3 class="anchored" data-anchor-id="weekday-am-peak-hours-by-origin-1">4.2.1. Weekday AM Peak Hours (by Origin)</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
-<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_options</span>(<span class="at">check.and.fix =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(WD_AM_map) <span class="sc">+</span></span>
-<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
-<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
-<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Blues"</span>,</span>
-<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
-<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Trips by Origin on Weekday AM Peak Hours"</span>,</span>
-<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
-<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,) <span class="sc">+</span></span>
-<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(WD_AM_map) <span class="sc">+</span></span>
+<span id="cb75-3"><a href="#cb75-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
+<span id="cb75-4"><a href="#cb75-4" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb75-5"><a href="#cb75-5" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Blues"</span>,</span>
+<span id="cb75-6"><a href="#cb75-6" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
+<span id="cb75-7"><a href="#cb75-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Trips by Origin on Weekday AM Peak Hours"</span>,</span>
+<span id="cb75-8"><a href="#cb75-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb75-9"><a href="#cb75-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,) <span class="sc">+</span></span>
+<span id="cb75-10"><a href="#cb75-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb75-11"><a href="#cb75-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb75-12"><a href="#cb75-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
 <span id="cb75-13"><a href="#cb75-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz2019) <span class="sc">+</span></span>
 <span id="cb75-14"><a href="#cb75-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb75-15"><a href="#cb75-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb75-15"><a href="#cb75-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-35-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1060,9 +1060,10 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((2917.538 22821.26..., POLYGON ((2917.53
 <span id="cb76-9"><a href="#cb76-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,) <span class="sc">+</span></span>
 <span id="cb76-10"><a href="#cb76-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
 <span id="cb76-11"><a href="#cb76-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
-<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz2019) <span class="sc">+</span></span>
-<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb76-14"><a href="#cb76-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb76-12"><a href="#cb76-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb76-13"><a href="#cb76-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz2019) <span class="sc">+</span></span>
+<span id="cb76-14"><a href="#cb76-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb76-15"><a href="#cb76-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-36-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1083,9 +1084,11 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((2917.538 22821.26..., POLYGON ((2917.53
 <span id="cb77-9"><a href="#cb77-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,) <span class="sc">+</span></span>
 <span id="cb77-10"><a href="#cb77-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
 <span id="cb77-11"><a href="#cb77-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
-<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz2019) <span class="sc">+</span></span>
-<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb77-12"><a href="#cb77-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb77-13"><a href="#cb77-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz2019) <span class="sc">+</span></span>
+<span id="cb77-14"><a href="#cb77-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb77-15"><a href="#cb77-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
+<span id="cb77-16"><a href="#cb77-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-37-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1106,9 +1109,10 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((2917.538 22821.26..., POLYGON ((2917.53
 <span id="cb78-9"><a href="#cb78-9" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,) <span class="sc">+</span></span>
 <span id="cb78-10"><a href="#cb78-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
 <span id="cb78-11"><a href="#cb78-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
-<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz2019) <span class="sc">+</span></span>
-<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
-<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb78-12"><a href="#cb78-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb78-13"><a href="#cb78-13" aria-hidden="true" tabindex="-1"></a><span class="fu">tm_shape</span>(mpsz2019) <span class="sc">+</span></span>
+<span id="cb78-14"><a href="#cb78-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_polygons</span>(<span class="at">alpha =</span> <span class="dv">0</span>) <span class="sc">+</span></span>
+<span id="cb78-15"><a href="#cb78-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.05</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-38-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1118,6 +1122,8 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((2917.538 22821.26..., POLYGON ((2917.53
 <section id="comparison" class="level3">
 <h3 class="anchored" data-anchor-id="comparison">4.2.3. Comparison</h3>
 <div class="cell">
+<details>
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
 <span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>WD_AM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(WD_AM_map) <span class="sc">+</span></span>
 <span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
@@ -1130,50 +1136,55 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((2917.538 22821.26..., POLYGON ((2917.53
 <span id="cb79-10"><a href="#cb79-10" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>,</span>
 <span id="cb79-11"><a href="#cb79-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,) <span class="sc">+</span></span>
 <span id="cb79-12"><a href="#cb79-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>()</span>
-<span id="cb79-14"><a href="#cb79-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-15"><a href="#cb79-15" aria-hidden="true" tabindex="-1"></a>WD_PM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(WD_PM_map) <span class="sc">+</span></span>
-<span id="cb79-16"><a href="#cb79-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
-<span id="cb79-17"><a href="#cb79-17" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
-<span id="cb79-18"><a href="#cb79-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Greens"</span>,</span>
-<span id="cb79-19"><a href="#cb79-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
-<span id="cb79-20"><a href="#cb79-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Weekday PM Peak Hours"</span>,</span>
-<span id="cb79-21"><a href="#cb79-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
-<span id="cb79-22"><a href="#cb79-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,</span>
-<span id="cb79-23"><a href="#cb79-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>,</span>
-<span id="cb79-24"><a href="#cb79-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,) <span class="sc">+</span></span>
-<span id="cb79-25"><a href="#cb79-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb79-26"><a href="#cb79-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>()</span>
-<span id="cb79-27"><a href="#cb79-27" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-28"><a href="#cb79-28" aria-hidden="true" tabindex="-1"></a>WE_AM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(WE_AM_map) <span class="sc">+</span></span>
-<span id="cb79-29"><a href="#cb79-29" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
-<span id="cb79-30"><a href="#cb79-30" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
-<span id="cb79-31"><a href="#cb79-31" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Reds"</span>,</span>
-<span id="cb79-32"><a href="#cb79-32" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span>  <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
-<span id="cb79-33"><a href="#cb79-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Weekend/Holidays AM Peak Hours"</span>,</span>
-<span id="cb79-34"><a href="#cb79-34" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
-<span id="cb79-35"><a href="#cb79-35" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,</span>
-<span id="cb79-36"><a href="#cb79-36" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>,</span>
-<span id="cb79-37"><a href="#cb79-37" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,) <span class="sc">+</span></span>
-<span id="cb79-38"><a href="#cb79-38" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb79-39"><a href="#cb79-39" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>()</span>
-<span id="cb79-40"><a href="#cb79-40" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-41"><a href="#cb79-41" aria-hidden="true" tabindex="-1"></a>WE_PM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(WE_PM_map) <span class="sc">+</span></span>
-<span id="cb79-42"><a href="#cb79-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
-<span id="cb79-43"><a href="#cb79-43" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
-<span id="cb79-44"><a href="#cb79-44" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Oranges"</span>,</span>
-<span id="cb79-45"><a href="#cb79-45" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
-<span id="cb79-46"><a href="#cb79-46" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Weekend/Holidays PM Peak Hours"</span>,</span>
-<span id="cb79-47"><a href="#cb79-47" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
-<span id="cb79-48"><a href="#cb79-48" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,</span>
-<span id="cb79-49"><a href="#cb79-49" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>,</span>
-<span id="cb79-50"><a href="#cb79-50" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,) <span class="sc">+</span></span>
-<span id="cb79-51"><a href="#cb79-51" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
-<span id="cb79-52"><a href="#cb79-52" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>()</span>
-<span id="cb79-53"><a href="#cb79-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb79-54"><a href="#cb79-54" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(WD_AM_plot, WD_PM_plot, </span>
-<span id="cb79-55"><a href="#cb79-55" aria-hidden="true" tabindex="-1"></a>             WE_AM_plot, WE_PM_plot, </span>
-<span id="cb79-56"><a href="#cb79-56" aria-hidden="true" tabindex="-1"></a>             <span class="at">asp =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb79-13"><a href="#cb79-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb79-14"><a href="#cb79-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span>
+<span id="cb79-15"><a href="#cb79-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-16"><a href="#cb79-16" aria-hidden="true" tabindex="-1"></a>WD_PM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(WD_PM_map) <span class="sc">+</span></span>
+<span id="cb79-17"><a href="#cb79-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
+<span id="cb79-18"><a href="#cb79-18" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb79-19"><a href="#cb79-19" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Greens"</span>,</span>
+<span id="cb79-20"><a href="#cb79-20" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
+<span id="cb79-21"><a href="#cb79-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Weekday PM Peak Hours"</span>,</span>
+<span id="cb79-22"><a href="#cb79-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb79-23"><a href="#cb79-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,</span>
+<span id="cb79-24"><a href="#cb79-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>,</span>
+<span id="cb79-25"><a href="#cb79-25" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,) <span class="sc">+</span></span>
+<span id="cb79-26"><a href="#cb79-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb79-27"><a href="#cb79-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb79-28"><a href="#cb79-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span>
+<span id="cb79-29"><a href="#cb79-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-30"><a href="#cb79-30" aria-hidden="true" tabindex="-1"></a>WE_AM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(WE_AM_map) <span class="sc">+</span></span>
+<span id="cb79-31"><a href="#cb79-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
+<span id="cb79-32"><a href="#cb79-32" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb79-33"><a href="#cb79-33" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Reds"</span>,</span>
+<span id="cb79-34"><a href="#cb79-34" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span>  <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
+<span id="cb79-35"><a href="#cb79-35" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Weekend/Holidays AM Peak Hours"</span>,</span>
+<span id="cb79-36"><a href="#cb79-36" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb79-37"><a href="#cb79-37" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,</span>
+<span id="cb79-38"><a href="#cb79-38" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>,</span>
+<span id="cb79-39"><a href="#cb79-39" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,) <span class="sc">+</span></span>
+<span id="cb79-40"><a href="#cb79-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb79-41"><a href="#cb79-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb79-42"><a href="#cb79-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span>
+<span id="cb79-43"><a href="#cb79-43" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-44"><a href="#cb79-44" aria-hidden="true" tabindex="-1"></a>WE_PM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(WE_PM_map) <span class="sc">+</span></span>
+<span id="cb79-45"><a href="#cb79-45" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="st">"TRIPS"</span>,</span>
+<span id="cb79-46"><a href="#cb79-46" aria-hidden="true" tabindex="-1"></a>          <span class="at">style =</span> <span class="st">"quantile"</span>,</span>
+<span id="cb79-47"><a href="#cb79-47" aria-hidden="true" tabindex="-1"></a>          <span class="at">palette =</span> <span class="st">"Oranges"</span>,</span>
+<span id="cb79-48"><a href="#cb79-48" aria-hidden="true" tabindex="-1"></a>          <span class="at">id =</span> <span class="st">"TRIPS"</span>) <span class="sc">+</span></span>
+<span id="cb79-49"><a href="#cb79-49" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_layout</span>(<span class="at">main.title =</span> <span class="st">"Weekend/Holidays PM Peak Hours"</span>,</span>
+<span id="cb79-50"><a href="#cb79-50" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.position =</span> <span class="st">"center"</span>,</span>
+<span id="cb79-51"><a href="#cb79-51" aria-hidden="true" tabindex="-1"></a>            <span class="at">main.title.size =</span> <span class="dv">1</span>,</span>
+<span id="cb79-52"><a href="#cb79-52" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.height =</span> <span class="fl">0.45</span>,</span>
+<span id="cb79-53"><a href="#cb79-53" aria-hidden="true" tabindex="-1"></a>            <span class="at">legend.width =</span> <span class="fl">0.35</span>,) <span class="sc">+</span></span>
+<span id="cb79-54"><a href="#cb79-54" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_borders</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>) <span class="sc">+</span></span>
+<span id="cb79-55"><a href="#cb79-55" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_scale_bar</span>() <span class="sc">+</span></span>
+<span id="cb79-56"><a href="#cb79-56" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_grid</span>(<span class="at">alpha =</span> <span class="fl">0.2</span>)</span>
+<span id="cb79-57"><a href="#cb79-57" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb79-58"><a href="#cb79-58" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(WD_AM_plot, WD_PM_plot, </span>
+<span id="cb79-59"><a href="#cb79-59" aria-hidden="true" tabindex="-1"></a>             WE_AM_plot, WE_PM_plot, </span>
+<span id="cb79-60"><a href="#cb79-60" aria-hidden="true" tabindex="-1"></a>             <span class="at">asp =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-39-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1254,9 +1265,9 @@ $ geometry &lt;POLYGON [m]&gt; POLYGON ((2917.538 22821.26..., POLYGON ((2917.53
 </div>
 </section>
 </section>
-<section id="deriving-contiguity-weights-and-local-morans-i" class="level2">
-<h2 class="anchored" data-anchor-id="deriving-contiguity-weights-and-local-morans-i">5.3. Deriving Contiguity Weights and Local Moran’s I</h2>
-<p>Based on the visualisations above, we will use inverse distance weights (IDW) method to derive the spatial weights for each dataset:</p>
+<section id="deriving-spatial-weights-and-local-morans-i" class="level2">
+<h2 class="anchored" data-anchor-id="deriving-spatial-weights-and-local-morans-i">5.3. Deriving Spatial Weights and Local Moran’s I</h2>
+<p>Based on the visualisations above, we will use inverse distance weights (IDW) method to derive the spatial weights for each dataset. IDW assumes that each measured point has a local influence that diminishes with distance. It gives greater weights to points closest to the prediction location, and the weights diminish as a function of distance<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>.</p>
 <section id="weekday-am-peak-hours-by-origin-3" class="level3">
 <h3 class="anchored" data-anchor-id="weekday-am-peak-hours-by-origin-3">5.3.1. Weekday AM Peak Hours (by Origin)</h3>
 <div class="cell">
@@ -1305,16 +1316,16 @@ Projected CRS: SVY21 / Singapore TM
 # A tibble: 1,386 × 17
         ii      eii  var_ii  z_ii   p_ii p_ii_sim p_folded_sim skewness kurtosis
      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
- 1 0.00214  9.17e-5 1.05e-6  2.00 0.0451     0.02         0.01   -1.05    2.32  
- 2 0.00486  3.12e-4 6.44e-6  1.79 0.0729     0.02         0.01   -1.13    1.79  
- 3 0.00352 -8.63e-6 3.80e-6  1.81 0.0700     0.02         0.01   -0.762   0.0523
- 4 0.00508 -3.72e-4 6.31e-6  2.17 0.0300     0.02         0.01   -0.500   0.341 
- 5 0.00558  9.15e-5 1.03e-5  1.71 0.0867     0.02         0.01   -1.56    4.65  
- 6 0.00447  2.71e-5 8.30e-6  1.54 0.123      0.02         0.01   -2.00    7.09  
- 7 0.00491  2.12e-4 8.40e-6  1.62 0.105      0.02         0.01   -2.03    6.16  
- 8 0.00570 -1.19e-4 9.37e-6  1.90 0.0573     0.02         0.01   -1.23    2.49  
- 9 0.00566  1.58e-4 8.15e-6  1.93 0.0539     0.02         0.01   -1.06    0.997 
-10 0.00473 -1.29e-4 6.90e-6  1.85 0.0643     0.02         0.01   -0.480  -0.452 
+ 1 0.00214 -3.25e-4 1.83e-6  1.83 0.0678     0.02         0.01   -1.09     0.836
+ 2 0.00486  4.08e-4 6.62e-6  1.73 0.0835     0.02         0.01   -1.60     3.00 
+ 3 0.00352 -1.04e-4 3.62e-6  1.91 0.0566     0.02         0.01   -0.957    0.754
+ 4 0.00508  4.31e-5 6.97e-6  1.91 0.0565     0.02         0.01   -1.51     4.46 
+ 5 0.00558  5.48e-4 7.89e-6  1.79 0.0732     0.02         0.01   -0.752    0.401
+ 6 0.00447 -2.42e-5 6.59e-6  1.75 0.0798     0.02         0.01   -1.48     3.67 
+ 7 0.00491  2.08e-4 6.42e-6  1.86 0.0636     0.02         0.01   -1.05     0.845
+ 8 0.00570  2.18e-4 9.25e-6  1.80 0.0715     0.02         0.01   -0.621   -0.360
+ 9 0.00566 -9.52e-5 7.37e-6  2.12 0.0340     0.02         0.01   -0.720    0.984
+10 0.00473 -5.52e-4 1.15e-5  1.56 0.120      0.02         0.01   -1.14     1.21 
 # ℹ 1,376 more rows
 # ℹ 8 more variables: mean &lt;fct&gt;, median &lt;fct&gt;, pysal &lt;fct&gt;, nb &lt;nb&gt;,
 #   wt &lt;list&gt;, id &lt;fct&gt;, TRIPS &lt;dbl&gt;, geometry &lt;POLYGON [m]&gt;</code></pre>
@@ -1367,18 +1378,18 @@ Dimension:     XY
 Bounding box:  xmin: 3667.538 ymin: 26285.36 xmax: 48667.54 ymax: 50245.4
 Projected CRS: SVY21 / Singapore TM
 # A tibble: 1,396 × 17
-        ii       eii  var_ii  z_ii  p_ii p_ii_sim p_folded_sim skewness kurtosis
-     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
- 1 0.00114   1.55e-4 4.46e-7 1.47  0.142     0.02         0.01    -1.38     2.16
- 2 0.00259  -5.25e-5 7.14e-6 0.989 0.323     0.02         0.01    -3.84    18.7 
- 3 0.00172   9.97e-5 1.42e-6 1.36  0.174     0.02         0.01    -3.42    17.6 
- 4 0.00270  -1.46e-5 6.86e-6 1.04  0.300     0.02         0.01    -4.17    23.8 
- 5 0.00301  -6.69e-5 7.82e-6 1.10  0.272     0.02         0.01    -3.30    14.2 
- 6 0.00237  -1.43e-4 2.67e-6 1.54  0.124     0.02         0.01    -1.30     1.99
- 7 0.00229  -1.86e-4 4.87e-6 1.12  0.262     0.02         0.01    -3.47    17.2 
- 8 0.00280  -3.49e-4 8.50e-6 1.08  0.280     0.02         0.01    -3.64    14.9 
- 9 0.00305   1.99e-4 3.12e-6 1.62  0.106     0.02         0.01    -2.09     6.29
-10 0.00261   2.16e-4 4.32e-6 1.15  0.249     0.04         0.02    -2.35     7.09
+        ii      eii  var_ii  z_ii   p_ii p_ii_sim p_folded_sim skewness kurtosis
+     &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+ 1 0.00114  9.54e-5 4.60e-7  1.53 0.125      0.02         0.01   -1.36     1.56 
+ 2 0.00259  2.31e-4 2.00e-6  1.67 0.0951     0.02         0.01   -0.900    0.333
+ 3 0.00172 -9.08e-6 2.01e-6  1.22 0.222      0.02         0.01   -3.56    17.2  
+ 4 0.00270  2.56e-4 2.80e-6  1.46 0.144      0.02         0.01   -1.94     4.15 
+ 5 0.00301 -2.39e-4 5.90e-6  1.34 0.181      0.02         0.01   -2.11     4.99 
+ 6 0.00237  1.19e-4 1.91e-6  1.63 0.103      0.02         0.01   -2.25     8.73 
+ 7 0.00229  6.35e-5 2.66e-6  1.36 0.172      0.02         0.01   -2.99    11.9  
+ 8 0.00280 -1.22e-4 5.32e-6  1.27 0.205      0.02         0.01   -1.95     4.19 
+ 9 0.00305  5.00e-5 5.95e-6  1.23 0.218      0.02         0.01   -4.37    26.0  
+10 0.00261  3.87e-4 2.22e-6  1.49 0.136      0.02         0.01   -1.75     3.78 
 # ℹ 1,386 more rows
 # ℹ 8 more variables: mean &lt;fct&gt;, median &lt;fct&gt;, pysal &lt;fct&gt;, nb &lt;nb&gt;,
 #   wt &lt;list&gt;, id &lt;fct&gt;, TRIPS &lt;dbl&gt;, geometry &lt;POLYGON [m]&gt;</code></pre>
@@ -1432,16 +1443,16 @@ Projected CRS: SVY21 / Singapore TM
 # A tibble: 1,371 × 17
         ii      eii  var_ii  z_ii   p_ii p_ii_sim p_folded_sim skewness kurtosis
      &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
- 1 0.00396 -6.62e-4 8.18e-6  1.62 0.106      0.02         0.01    -2.04    4.94 
- 2 0.00261  3.10e-4 1.93e-6  1.66 0.0974     0.02         0.01    -1.74    4.46 
- 3 0.00422  5.04e-5 6.27e-6  1.66 0.0963     0.02         0.01    -1.47    2.66 
- 4 0.00450  2.03e-5 7.51e-6  1.64 0.102      0.02         0.01    -1.05    0.965
- 5 0.00365  8.58e-5 5.43e-6  1.53 0.127      0.02         0.01    -1.85    3.73 
- 6 0.00406  4.51e-4 3.93e-6  1.82 0.0687     0.02         0.01    -1.58    3.93 
- 7 0.00432 -1.98e-5 7.07e-6  1.63 0.103      0.02         0.01    -1.59    3.03 
- 8 0.00463  4.97e-4 5.96e-6  1.69 0.0909     0.02         0.01    -1.52    3.17 
- 9 0.00361 -1.29e-5 6.46e-6  1.42 0.154      0.02         0.01    -1.81    4.01 
-10 0.00461  9.94e-5 5.32e-6  1.95 0.0507     0.02         0.01    -1.11    1.86 
+ 1 0.00396  7.90e-5 6.06e-6  1.58 0.114      0.02         0.01   -2.05     5.69 
+ 2 0.00261  2.29e-4 2.14e-6  1.63 0.103      0.02         0.01   -1.98     5.06 
+ 3 0.00422  5.44e-5 5.15e-6  1.83 0.0667     0.02         0.01   -1.70     5.31 
+ 4 0.00450  1.57e-4 5.60e-6  1.84 0.0665     0.02         0.01   -0.883    0.214
+ 5 0.00365 -9.33e-5 4.56e-6  1.75 0.0800     0.02         0.01   -1.60     3.93 
+ 6 0.00406  3.01e-4 3.40e-6  2.04 0.0415     0.02         0.01   -1.38     3.53 
+ 7 0.00432  2.30e-4 4.39e-6  1.95 0.0511     0.02         0.01   -1.18     1.16 
+ 8 0.00463 -2.14e-4 1.00e-5  1.53 0.127      0.02         0.01   -2.20     6.55 
+ 9 0.00361  5.48e-5 5.06e-6  1.58 0.114      0.02         0.01   -1.84     4.79 
+10 0.00461  2.98e-4 5.65e-6  1.81 0.0700     0.02         0.01   -1.60     3.99 
 # ℹ 1,361 more rows
 # ℹ 8 more variables: mean &lt;fct&gt;, median &lt;fct&gt;, pysal &lt;fct&gt;, nb &lt;nb&gt;,
 #   wt &lt;list&gt;, id &lt;fct&gt;, TRIPS &lt;dbl&gt;, geometry &lt;POLYGON [m]&gt;</code></pre>
@@ -1493,18 +1504,18 @@ Dimension:     XY
 Bounding box:  xmin: 3667.538 ymin: 26285.36 xmax: 46667.54 ymax: 50245.4
 Projected CRS: SVY21 / Singapore TM
 # A tibble: 1,372 × 17
-        ii      eii  var_ii  z_ii   p_ii p_ii_sim p_folded_sim skewness kurtosis
-     &lt;dbl&gt;    &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
- 1 0.00131  1.32e-4 4.61e-7  1.74 0.0817     0.02         0.01    -1.01    0.913
- 2 0.00289 -1.32e-4 6.04e-6  1.23 0.219      0.02         0.01    -3.40   16.0  
- 3 0.00206  4.90e-6 2.17e-6  1.40 0.162      0.02         0.01    -1.61    2.48 
- 4 0.00308  1.18e-4 3.84e-6  1.51 0.130      0.02         0.01    -1.55    2.84 
- 5 0.00332  1.63e-4 3.44e-6  1.70 0.0882     0.02         0.01    -1.40    2.25 
- 6 0.00275  8.45e-5 3.78e-6  1.37 0.171      0.02         0.01    -2.38    8.89 
- 7 0.00280 -3.28e-5 3.30e-6  1.56 0.119      0.02         0.01    -2.09    5.85 
- 8 0.00294  2.73e-4 2.64e-6  1.64 0.101      0.02         0.01    -1.69    4.60 
- 9 0.00340  1.15e-4 4.88e-6  1.49 0.137      0.02         0.01    -1.82    5.34 
-10 0.00259  2.11e-4 3.25e-6  1.32 0.188      0.02         0.01    -1.49    2.42 
+        ii       eii  var_ii  z_ii  p_ii p_ii_sim p_folded_sim skewness kurtosis
+     &lt;dbl&gt;     &lt;dbl&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
+ 1 0.00131  -2.67e-5 8.75e-7  1.43 0.152     0.02         0.01    -2.22     6.70
+ 2 0.00289   2.00e-4 3.30e-6  1.48 0.139     0.02         0.01    -1.88     4.84
+ 3 0.00206  -1.52e-5 2.34e-6  1.36 0.174     0.02         0.01    -2.49     7.64
+ 4 0.00308  -3.85e-4 9.78e-6  1.11 0.267     0.02         0.01    -2.84    11.2 
+ 5 0.00332   3.44e-4 3.84e-6  1.52 0.128     0.02         0.01    -1.50     2.27
+ 6 0.00275  -2.62e-4 7.51e-6  1.10 0.272     0.02         0.01    -4.24    24.7 
+ 7 0.00280  -8.08e-5 3.19e-6  1.61 0.107     0.02         0.01    -1.71     3.71
+ 8 0.00294   1.23e-4 4.94e-6  1.27 0.205     0.02         0.01    -3.17    14.2 
+ 9 0.00340  -5.64e-4 1.35e-5  1.08 0.280     0.02         0.01    -3.53    15.9 
+10 0.00259  -5.24e-4 8.67e-6  1.06 0.291     0.02         0.01    -2.42     6.13
 # ℹ 1,362 more rows
 # ℹ 8 more variables: mean &lt;fct&gt;, median &lt;fct&gt;, pysal &lt;fct&gt;, nb &lt;nb&gt;,
 #   wt &lt;list&gt;, id &lt;fct&gt;, TRIPS &lt;dbl&gt;, geometry &lt;POLYGON [m]&gt;</code></pre>
@@ -1541,7 +1552,8 @@ Projected CRS: SVY21 / Singapore TM
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-56-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Marina Bay, and Changi areas. The High-High clusters appear in residential areas such as Woodlands, Choa Chu Kang, Punggol, and Serangoon.</p>
+<p>It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.</p>
+<p>We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Marina Bay, and Changi areas. The High-High clusters appear in residential areas such as Woodlands, Choa Chu Kang, Punggol, and Serangoon.</p>
 <p>However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in the Tuas and Mandai areas. There are also Low-High outliers found in the residential areas such as Jurong, Woodlands, and Ang Mo Kio.</p>
 </section>
 <section id="weekday-pm-peak-hours-by-origin-4" class="level3">
@@ -1569,7 +1581,8 @@ Projected CRS: SVY21 / Singapore TM
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-57-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.</p>
+<p>It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.</p>
+<p>We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.</p>
 <p>However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Jurong, Kranji, Woodlands, and Ang Mo Kio.</p>
 </section>
 <section id="weekend-am-peak-hours-by-origin-2" class="level3">
@@ -1597,7 +1610,8 @@ Projected CRS: SVY21 / Singapore TM
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-58-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Seletar, Tampines, and Changi areas. The High-High clusters appear in residential areas such as Clementi, Bukit Batok, Choa Chu Kang, Punggol, and Serangoon. Some High-High clusters are also observed in the city area around Bugis.</p>
+<p>It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.</p>
+<p>We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, Seletar, Tampines, and Changi areas. The High-High clusters appear in residential areas such as Clementi, Bukit Batok, Choa Chu Kang, Punggol, and Serangoon. Some High-High clusters are also observed in the city area around Bugis.</p>
 <p>However, there are some High-Low and Low-High outliers that are observed, although they appear more sporadic. Some of the High-Low outliers are observed near the Low-Low clusters in the Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Jurong, Choa Chu Kang, Woodlands, and Ang Mo Kio. Some Low-High outliers are also observed near High-High clusters in the city area.</p>
 </section>
 <section id="weekend-pm-peak-hours-by-origin-3" class="level3">
@@ -1625,12 +1639,15 @@ Projected CRS: SVY21 / Singapore TM
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-59-1.png" class="img-fluid" width="672"></p>
 </div>
 </div>
-<p>It is observed from the visualisation that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.</p>
+<p>It is observed from the visualisation that most of the associations are not considered significant (p-value greater than 0.05) as they are represented by grey hexagons.</p>
+<p>We can observe that there are more Low-Low clusters than High-High clusters. Most of the Low-Low clusters occur in the Tuas, Lim Chu Kang, Mandai, and Tampines areas. The High-High clusters appear in some residential areas such as Clementi, Ang Mo Kio, and Tampines areas. Some High-High clusters are also observed in the city area around Bugis.</p>
 <p>However, there are some High-Low and Low-High outliers that are observed. Some of the High-Low outliers are observed near the Low-Low clusters in Tuas, Mandai, and Seletar areas. There are also Low-High outliers found in the residential areas such as Clementi, Choa Chu Kang, Woodlands, and Ang Mo Kio. Some Low-High outliers are also observed near the High-High clusters in the city area.</p>
 </section>
 <section id="comparison-1" class="level3">
 <h3 class="anchored" data-anchor-id="comparison-1">5.4.5. Comparison</h3>
 <div class="cell">
+<details>
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb108"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb108-1"><a href="#cb108-1" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_mode</span>(<span class="st">"plot"</span>)</span>
 <span id="cb108-2"><a href="#cb108-2" aria-hidden="true" tabindex="-1"></a>lisa_WD_AM_plot <span class="ot">&lt;-</span> <span class="fu">tm_shape</span>(hexagon) <span class="sc">+</span> </span>
 <span id="cb108-3"><a href="#cb108-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tm_fill</span>(<span class="at">alpha =</span> <span class="fl">0.1</span>) <span class="sc">+</span></span>
@@ -1705,6 +1722,7 @@ Projected CRS: SVY21 / Singapore TM
 <span id="cb108-72"><a href="#cb108-72" aria-hidden="true" tabindex="-1"></a><span class="fu">tmap_arrange</span>(lisa_WD_AM_plot, lisa_WD_PM_plot,</span>
 <span id="cb108-73"><a href="#cb108-73" aria-hidden="true" tabindex="-1"></a>             lisa_WE_AM_plot, lisa_WE_PM_plot,</span>
 <span id="cb108-74"><a href="#cb108-74" aria-hidden="true" tabindex="-1"></a>             <span class="at">asp =</span> <span class="dv">2</span>, <span class="at">ncol =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <p><img src="Take_home_Ex01_files/figure-html/unnamed-chunk-60-1.png" class="img-fluid" width="672"></p>
 </div>
@@ -1726,6 +1744,7 @@ Projected CRS: SVY21 / Singapore TM
 <ol>
 <li id="fn1"><p>https://r4ds.had.co.nz/data-import.html (Section 11.2.1)<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 <li id="fn2"><p>https://desktop.arcgis.com/en/arcmap/latest/tools/spatial-statistics-toolbox/h-whyhexagons.htm<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3"><p>https://pro.arcgis.com/en/pro-app/latest/help/analysis/geostatistical-analyst/how-inverse-distance-weighted-interpolation-works.htm<a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
