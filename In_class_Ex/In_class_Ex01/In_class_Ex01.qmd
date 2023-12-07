@@ -1,5 +1,5 @@
 ---
-title: "In-Class Exercise 1"
+title: "In-Class Exercise 1: Geospatial Data Wrangling and Visualisation"
 date: "18 November 2023"
 date-modified: "last-modified"
 format: html
