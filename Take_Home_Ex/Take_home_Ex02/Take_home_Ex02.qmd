@@ -1,5 +1,5 @@
 ---
-title: "Take-home Ex 2"
+title: "Take-home Exercise 2"
 date: "5 December 2023"
 date-modified: "last-modified"
 format: html
