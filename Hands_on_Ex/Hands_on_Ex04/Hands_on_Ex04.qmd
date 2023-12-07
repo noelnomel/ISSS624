@@ -1,6 +1,6 @@
 ---
 title: "Hands-on Exercise 4: Geographically Weighted Regression"
-date: "13 November 2023"
+date: "5 December 2023"
 date-modified: "last-modified"
 format: html
 execute: 
