@@ -28,3 +28,5 @@ We will use the following data sets for this exercise:
 | 6   | Train Station Exit Point                                  | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/geospatial              |
 | 7   | Passenger Volume by Origin Destination Bus Stops (202310) | CSV       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/aspatial                |
 | 8   | Businesses, retail and services, leisure and recreation   | SHP       | Assembled by Course Instructor                                                    | /data/geospatial              |
+
+# 3. 
