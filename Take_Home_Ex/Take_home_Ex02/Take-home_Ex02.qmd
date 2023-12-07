@@ -1,0 +1,30 @@
+---
+title: "Take-home Ex 2"
+date: "5 December 2023"
+date-modified: "last-modified"
+format: html
+execute: 
+  echo: true # all code chunks will appear
+  eval: true # all code chunks will run live
+  warning: false # do not display warning message
+editor: visual
+---
+
+# 1. Overview
+
+In this take-home exercise, a case study using bus ridership in Singapore will be conducted to demonstrate the value of Geospatial Data Science and Analysis to determine factors affecting urban mobility patterns of public bus transit. To achieve this, publicly available data from different sources will be integrated to build spatial interaction models.
+
+# 2. The Data
+
+We will use the following data sets for this exercise:
+
+| S/N | Name of Data Set                                          | File type | Source                                                                            | Extracted to (file directory) |
+|---------------|---------------|---------------|---------------|---------------|
+| 1   | Master Plan 2019 Subzone Boundary (Web)                   | SHP       | [data.gov.sg](https://data.gov.sg/)                                               | /data/geospatial              |
+| 2   | HDB Property Information                                  | CSV       | [data.gov.sg](https://data.gov.sg/)                                               | /data/aspatial                |
+| 3   | School Directory and Information                          | CSV       | [data.gov.sg](https://data.gov.sg/)                                               | /data/aspatial                |
+| 4   | Bus Stop Location                                         | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/geospatial              |
+| 5   | Train Station                                             | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/geospatial              |
+| 6   | Train Station Exit Point                                  | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/geospatial              |
+| 7   | Passenger Volume by Origin Destination Bus Stops (202310) | CSV       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/aspatial                |
+| 8   | Businesses, retail and services, leisure and recreation   | SHP       | Assembled by Course Instructor                                                    | /data/geospatial              |

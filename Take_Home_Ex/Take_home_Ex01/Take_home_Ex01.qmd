@@ -168,7 +168,13 @@ Next, we will create a hexagon tessellation layer using `mpsz2019`. A hexagon la
 
 ```{r}
 # calculate cellsize using perpendicular distance from center to edge of 250m
-cs <- 2 * 250
+
+# update on 7 Dec 2023 after realising some calculation mistakes
+# cell size = 2 x edge length (since regular hexagons are made of equilateral triangles)
+# apothem = perpendicular distance from center to any edge
+# edge length = (2 x apothem) / sqrt(3) 
+# cell size = (4 x apothem) / sqrt(3)
+cs <- (4 * 250) / sqrt(3)
 
 # make hexagonal tesellation and add grid ID
 mpsz2019_grid <- st_make_grid(mpsz2019, c(cs,cs), square = FALSE) %>%
