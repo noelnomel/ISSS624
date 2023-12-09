@@ -27,7 +27,7 @@ This webpage is created on RStudio using the quarto package. The package is inst
 For this Hands-on Exercise, the following data sets are assembled from the sources as indicated:
 
 | S/N | Name of Data Set                             | File type | Source                                                                                                                  | Extracted to (file directory) |
-|----------|----------|----------|-------------------------------|----------|
+|-----|----------------------------------------------|-----------|-------------------------------------------------------------------------------------------------------------------------|-------------------------------|
 | 1   | Master Plan 2014 Subzone Boundary (Web)      | SHP       | [data.gov.sg](https://data.gov.sg/)                                                                                     | /data/geospatial              |
 | 2   | Pre-Schools Location                         | KML       | [data.gov.sg](https://data.gov.sg/)                                                                                     | /data/geospatial              |
 | 3   | Cycling Path                                 | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html)                                       | /data/geospatial              |
@@ -53,7 +53,7 @@ pacman::p_load(sf,tidyverse)
 We will use the `st_read()` function from the `sf` package to import the following Geospatial data:
 
 | S/N | Name of Data Set                        | Format | Layer                 |
-|-------------|--------------------------------|-------------|----------------|
+|-----|-----------------------------------------|--------|-----------------------|
 | 1   | Master Plan 2014 Subzone Boundary (Web) | SHP    | Polygon feature layer |
 | 2   | Pre-Schools Location                    | SHP    | Line feature layer    |
 | 3   | Cycling Path                            | KML    | Point feature layer   |

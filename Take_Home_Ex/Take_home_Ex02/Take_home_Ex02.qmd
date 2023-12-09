@@ -29,4 +29,19 @@ We will use the following data sets for this exercise:
 | 7   | Passenger Volume by Origin Destination Bus Stops (202310) | CSV       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/aspatial                |
 | 8   | Businesses, retail and services, leisure and recreation   | SHP       | Assembled by Course Instructor                                                    | /data/geospatial              |
 
-# 3.  Create Hexagon Layer
+# 3. Create Hexagon Layer
+
+poisson regression instead if other linear regression (possibility of negative numbers but we should not have negative trips)
+
+GLM \> generalised linear regression model (machine learning technique?) algorithm
+
+need to use flow data
+
+use total dwelling units as a proxy for population at the hexagon level
+
+Need not use all of prof's datasets for attractiveness, need to use them logically (e.g. retail may not be good for morning peak commute since shops are not open)
+these data points are at the destination at the start of the day and at the origin at th end of the day
+
+choose one time period for modelling
+
+ideally form different models and compare and see which one gives the best results

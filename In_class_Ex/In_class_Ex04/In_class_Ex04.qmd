@@ -1,0 +1,240 @@
+---
+title: "In-class Exercise 4"
+date: "9 December 2023"
+date-modified: "last-modified"
+format: html
+execute: 
+  echo: true # all code chunks will appear
+  eval: true # all code chunks will run live
+  warning: false # do not display warning message
+editor: visual
+---
+
+# Overview
+In this in-class exercise, we will do the following:
+- performing geocoding using data downloaded from data.gov.sg
+- calibrating 
+
+# Getting Started
+```{r}
+#| eval: true
+pacman::p_load(tidyverse, sf, httr, tmap)
+```
+
+` httr is a R package to work with html pages
+
+```{r}
+mpsz2019 <- st_read(dsn="data/geospatial",
+                   layer = "MPSZ-2019") %>%
+  st_transform(crs=3414)
+
+glimpse(mpsz2019)
+```
+
+# Geocoding using SLA API
+
+```{r}
+#| eval: true
+#| message: false
+url <- "https://www.onemap.gov.sg/api/common/elastic/search"
+
+csv <- read_csv("data/aspatial/schools.csv")
+# create a list of all postal codes from schools.csv
+postcode <- csv$"postal_code"
+
+found <- data.frame()
+not_found <- data.frame()
+
+# pass list of postal code for geocoding
+for(code in postcode){
+  query <- list('searchVal' = code, 'returnGeom' = 'Y', 
+                'getAddrDetails' = 'Y','pageNum' = '1')
+  res <- GET(url, query = query)
+  
+  if((content(res)$found)!=0){
+    found <- rbind(found, data.frame(content(res))[4:13])
+  } else{
+    not_found = data.frame(code)
+  }
+}
+```
+
+One postal code is not found, have to do it manually.
+
+```{r}
+#| eval: true
+merged = merge(csv, found, by.x = 'postal_code', by.y = 'results.POSTAL', all = TRUE)
+write.csv(merged, file = "data/aspatial/schools_geocoded.csv")
+write.csv(not_found, file = "data/aspatial/not_found.csv")
+```
+
+Write to CSV to check the details of the unfound postal code. Manually update the decimal degree longlat using Google and save as schools_geocoded_tidy.   
+
+
+```{r}
+#| eval: true
+schools <- read_csv("data/aspatial/schools_geocoded_tidy.csv") %>%
+  rename(latitude = results.LATITUDE,
+         longitude = results.LONGITUDE) %>%
+  select(postal_code, school_name, latitude, longitude)
+```
+
+# Convert Aspatial Data to sf tibble date.frame
+```{r}
+#| eval: true
+schools_sf <- st_as_sf(schools,
+                       coords = c("longitude", "latitude"),
+                       # crs = 4326 is code for wgs84 (longlat)
+                       crs = 4326) %>%
+  # geocoding returns wgs84 format and has to be transformed (metres, singapore)
+  st_transform(crs = 3414)
+```
+
+# Plotting a Point Simple Feature Layer
+```{r}
+tmap_mode("view")
+ tm_shape(schools_sf) +
+  tm_dots() +
+tm_view(set.zoom.limits = c(11,14))
+
+```
+
+```{r}
+mpsz2019$'SCHOOL_COUNT' <- lengths(
+  st_intersects(
+    mpsz2019,schools_sf
+  )
+)
+```
+
+```{r}
+business_sf <- st_read(dsn = "data/geospatial",
+                       layer = 'Business')
+```
+
+```{r}
+mpsz2019$'BUSINESS_COUNT' <- lengths(
+  st_intersects(
+    mpsz2019,business_sf
+  )
+)
+```
+
+```{r}
+tmap_mode("plot")
+tmap_options(check.and.fix = TRUE)
+tm_shape(mpsz2019) +
+  tm_polygons() +
+tm_shape(business_sf) +
+  tm_dots()
+```
+
+```{r}
+#flow_data <- flow_data %>%
+#  left_join(mpsz_tidy, 
+#            by = c("DESTIN_SZ" = "SUBZONE_C"))
+```
+
+
+# Check for Zero-values
+Check variables with zero due to the use of log function, use 0.99 to replace zero values.
+
+
+
+
+
+
+
+# Model Calibration
+
+```{r}
+pacman::p_load(tmap, sf, performance, ggpubr, tidyverse)
+```
+
+```{r}
+flow_data <- read_rds("data/rds/flow_data_tidy.rds")
+glimpse(flow_data)
+```
+
+```{r}
+flow_data$FlowNoIntra <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 0,
+  flow_data$MORNING_PEAK)
+flow_data$offset <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 0.000001,
+  1)
+
+inter_zonal_flow <- flow_data %>%
+  filter(FlowNoIntra > 0)
+
+inter_zonal_flow <- inter_zonal_flow %>%
+  rename(TRIPS = MORNING_PEAK,
+         DIST = dist)
+```
+
+```{r}
+orcSIM_Poisson <- glm(formula = TRIPS ~
+                        # origin subzone used for origin constrain
+                        ORIGIN_SZ +
+                        # log of the attractiveness factors
+                        log(SCHOOL_COUNT) +
+                        log(RETAIL_COUNT) +
+                        # distance is added as it is an impendence
+                        # -1 to remove intercept 
+                        log(DIST) - 1,
+                      family = poisson(link = "log"),
+                      data = inter_zonal_flow,
+                      na.action = na.exclude)
+
+summary(orcSIM_Poisson)
+```
+we want to focus on the log(school_count), log(retail_count), log(DIST)
+log(dist) must be negative (longer the dist, less likely people will travel there)
+attractiveness should be always positive but it can be negative depending on the context (e.g. crime rate)
+p-value should be less than 0.05 for us to conclude that we are 95% confident to accept the factors as part of the conceptual model. if greater than 0.05, it means the factor is not statisticially significant as an attractiveness factor
+
+
+# Goodness of Fit
+```{r}
+CalcRSquared <- function(observed, estimated){
+  r <- cor(observed, estimated)
+  R2 <- r^2
+  R2
+}
+```
+
+
+```{r}
+CalcRSquared(orcSIM_Poisson$data$TRIPS, orcSIM_Poisson$fitted.values)
+```
+
+```{r}
+performance_rmse(orcSIM_Poisson, normalized = FALSE)
+```
+normalized = FALSE will not standardise the values, show the actual root mean square error.
+
+# Doubly Constrained
+no attractiveness
+
+```{r}
+dbcSIM_Poisson <- glm(formula = TRIPS ~
+                        # origin subzone used for origin constrain
+                        ORIGIN_SZ +
+                        DESTIN_SZ +
+                        # distance is added as it is an impendence
+                        # no -1 as there is no attractivness factors 
+                        log(DIST) ,
+                      family = poisson(link = "log"),
+                      data = inter_zonal_flow,
+                      na.action = na.exclude)
+
+summary(dbcSIM_Poisson)
+```
+
+
+
+
+
+
+
+
