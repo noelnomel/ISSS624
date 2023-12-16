@@ -34,7 +34,7 @@ glimpse(mpsz2019)
 # Geocoding using SLA API
 
 ```{r}
-#| eval: true
+#| eval: false
 #| message: false
 url <- "https://www.onemap.gov.sg/api/common/elastic/search"
 
@@ -62,7 +62,7 @@ for(code in postcode){
 One postal code is not found, have to do it manually.
 
 ```{r}
-#| eval: true
+#| eval: false
 merged = merge(csv, found, by.x = 'postal_code', by.y = 'results.POSTAL', all = TRUE)
 write.csv(merged, file = "data/aspatial/schools_geocoded.csv")
 write.csv(not_found, file = "data/aspatial/not_found.csv")

@@ -1,0 +1,368 @@
+---
+title: "In-class Exercise 4"
+date: "9 December 2023"
+date-modified: "last-modified"
+format: html
+execute: 
+  echo: true # all code chunks will appear
+  eval: true # all code chunks will run live
+  warning: false # do not display warning message
+editor: visual
+---
+
+
+# Overview
+In this in-class exercise, we will do the following:
+- performing geocoding using data downloaded from data.gov.sg
+- calibrating 
+
+# Getting Started
+
+```{r}
+#| eval: true
+pacman::p_load(tidyverse, sf, httr, tmap, performance, ggpubr)
+```
+
+
+` httr is a R package to work with html pages
+
+
+```{r}
+mpsz2019 <- st_read(dsn="data/geospatial",
+                   layer = "MPSZ-2019") %>%
+  st_transform(crs=3414)
+
+glimpse(mpsz2019)
+```
+
+
+# Geocoding using SLA API
+
+
+```{r}
+#| eval: false
+#| message: false
+url <- "https://www.onemap.gov.sg/api/common/elastic/search"
+
+csv <- read_csv("data/aspatial/schools.csv")
+# create a list of all postal codes from schools.csv
+postcode <- csv$"postal_code"
+
+found <- data.frame()
+not_found <- data.frame()
+
+# pass list of postal code for geocoding
+for(code in postcode){
+  query <- list('searchVal' = code, 'returnGeom' = 'Y', 
+                'getAddrDetails' = 'Y','pageNum' = '1')
+  res <- GET(url, query = query)
+  
+  if((content(res)$found)!=0){
+    found <- rbind(found, data.frame(content(res))[4:13])
+  } else{
+    not_found = data.frame(code)
+  }
+}
+```
+
+
+One postal code is not found, have to do it manually.
+
+
+```{r}
+#| eval: false
+merged = merge(csv, found, by.x = 'postal_code', by.y = 'results.POSTAL', all = TRUE)
+write.csv(merged, file = "data/aspatial/schools_geocoded.csv")
+write.csv(not_found, file = "data/aspatial/not_found.csv")
+```
+
+
+Write to CSV to check the details of the unfound postal code. Manually update the decimal degree longlat using Google and save as schools_geocoded_tidy.   
+
+
+
+```{r}
+#| eval: true
+schools <- read_csv("data/aspatial/schools_geocoded_tidy.csv") %>%
+  rename(latitude = results.LATITUDE,
+         longitude = results.LONGITUDE) %>%
+  select(postal_code, school_name, latitude, longitude)
+```
+
+
+# Convert Aspatial Data to sf tibble date.frame
+
+```{r}
+#| eval: true
+schools_sf <- st_as_sf(schools,
+                       coords = c("longitude", "latitude"),
+                       # crs = 4326 is code for wgs84 (longlat)
+                       crs = 4326) %>%
+  # geocoding returns wgs84 format and has to be transformed (metres, singapore)
+  st_transform(crs = 3414)
+```
+
+
+# Plotting a Point Simple Feature Layer
+
+```{r}
+tmap_mode("view")
+ tm_shape(schools_sf) +
+  tm_dots() +
+tm_view(set.zoom.limits = c(11,14))
+
+```
+
+```{r}
+mpsz2019$'SCHOOL_COUNT' <- lengths(
+  st_intersects(
+    mpsz2019,schools_sf
+  )
+)
+```
+
+```{r}
+summary(mpsz2019$SCHOOL_COUNT)
+```
+
+```{r}
+business_sf <- st_read(dsn = "data/geospatial",
+                       layer = 'Business')
+```
+
+```{r}
+mpsz2019$'BUSINESS_COUNT' <- lengths(
+  st_intersects(
+    mpsz2019,business_sf
+  )
+)
+```
+
+```{r}
+tmap_mode("plot")
+tmap_options(check.and.fix = TRUE)
+tm_shape(mpsz2019) +
+  tm_polygons() +
+tm_shape(business_sf) +
+  tm_dots()
+```
+
+```{r}
+summary(mpsz2019$BUSINESS_COUNT)
+```
+
+# Import flow_data_tidy into R
+
+```{r}
+flow_data <- read_rds("data/rds/flow_data_tidy.rds") %>%
+  rename(BUSINESS_COUNT = RETAIL_COUNT)
+glimpse(flow_data)
+```
+
+SCHOOL_COUNT and BUSINESS_COUNT will be used as attractiveness variables when calibrating origin constrained SIM. 
+
+# Preparing Inter-Zonal Flow Data
+
+SIMs can be calibrated for both inter- and intra-zonal flows. We will focus on inter-zonal flows in this exercise. To do so, we need to exclude intra-zonal flows from `flow_data`.
+
+
+```{r}
+# create new colunmn called FlowNoIntra which assigns 0 to intra-zonal flows
+flow_data$FlowNoIntra <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 
+  0, flow_data$MORNING_PEAK)
+
+# create new coloumn called offset which assigns small value to intra-zonal flows
+flow_data$offset <- ifelse(
+  flow_data$ORIGIN_SZ == flow_data$DESTIN_SZ, 
+  0.000001, 1)
+
+# create new data.frame to store all inter-zonal flows
+inter_zonal_flow <- flow_data %>%
+  filter(FlowNoIntra > 0)
+
+inter_zonal_flow <- inter_zonal_flow %>%
+  rename(TRIPS = MORNING_PEAK,
+         DIST = dist)
+```
+
+
+# Origin Constrained Model
+We will calibrate a origin constrained SIM and a doubly constrained SIM using the inter-zonal flow data prpepared. 
+
+
+```{r}
+orcSIM_Poisson <- glm(formula = TRIPS ~
+                        # origin subzone used for origin constrain
+                        ORIGIN_SZ +
+                        # log of the attractiveness factors
+                        log(SCHOOL_COUNT) +
+                        log(BUSINESS_COUNT) +
+                        # distance is added as it is an impendence
+                        # -1 to remove intercept added by default by glm
+                        log(DIST) - 1,
+                      family = poisson(link = "log"),
+                      data = inter_zonal_flow,
+                      na.action = na.exclude)
+
+# set higher max.print option to display all results
+options(max.print = 999999)
+summary(orcSIM_Poisson)
+```
+
+
+We want to focus on the log(school_count), log(retail_count), log(DIST)
+log(dist) must be negative (the longer the distance, less likely people will travel there).
+
+Generally, attractiveness is a positive value but it could be negative depending on the context (e.g. crime rate).
+
+Assuming a alpha value of 0.05, p-value should be less than 0.05 for us to conclude that we are 95% confident to accept the factors as part of the conceptual model. If p-value is greater than alpha value, it means the factor is not statistically significant as an attractiveness variable.
+
+## Goodness of Fit
+Next, we want to examine what proportion of the variance in dependent variable can be explained by the explanatory variables. As R-squared statistics is not an output of `glm()`, we will write a function to calculate R-squared using the following code:
+
+```{r}
+CalcRSquared <- function(observed, estimated){
+  r <- cor(observed, estimated)
+  R2 <- r^2
+  R2
+}
+```
+
+
+We will examine how the constraints hold for destinations:
+
+```{r}
+CalcRSquared(orcSIM_Poisson$data$TRIPS, orcSIM_Poisson$fitted.values)
+```
+
+The results show that the model accounts for about 44% of the variation of flows in the system. 
+
+
+```{r}
+performance_rmse(orcSIM_Poisson, normalized = FALSE)
+```
+
+normalized = FALSE will not standardise the values, show the actual root mean square error.
+
+# Doubly Constrained Model
+We will now calibrate a doubly constrained model which exludes attractiveness variables.
+
+
+```{r}
+dbcSIM_Poisson <- glm(formula = TRIPS ~
+                        # origin subzone used for origin constrain
+                        ORIGIN_SZ +
+                        DESTIN_SZ +
+                        # distance is added as it is an impedence
+                        # no -1 as there is no attractiveness factors 
+                        log(DIST) ,
+                      family = poisson(link = "log"),
+                      data = inter_zonal_flow,
+                      na.action = na.exclude)
+options(max.print = 999999)
+summary(dbcSIM_Poisson)
+```
+
+
+## Goodness of Fit
+
+We will examine how the constraints hold for destinations:
+
+```{r}
+CalcRSquared(dbcSIM_Poisson$data$TRIPS, dbcSIM_Poisson$fitted.values)
+```
+
+The results show that the model accounts for about 70% of the variation of flows in the system, which is more significant compared to the origin constrained model.
+
+# Model Comparison
+We will use the `compare_performance()` function from the `performance` package to compare to measure the performance of continuous dependent variables.
+
+We will first create a list of all models used:
+
+
+```{r}
+model_list <- list(
+  origin_constrained = orcSIM_Poisson,
+  doubly_constrained = dbcSIM_Poisson)
+```
+
+
+Next, we will compute the Root Mean Squared Error (RMSE) for each model:
+
+
+```{r}
+compare_performance(model_list,
+                    metrics = "RMSE")
+```
+
+
+The results show that the doubly constrained model is the better model between the two as it has the smaller RMSE value of 1906.694.
+
+# Visualising Fitted Values
+We will now plot the observed and fitted values for visualisation. 
+
+Firstly, we will extract the fitted values from the origin constrained model:
+
+
+```{r}
+df <- as.data.frame(orcSIM_Poisson$fitted.values) %>%
+  round(digits = 0)
+```
+
+
+Next, we will append the fitted values into the `inter_zonal_flow` data.frame:
+
+
+```{r}
+inter_zonal_flow <- inter_zonal_flow %>%
+  cbind(df) %>%
+  rename(orcTRIPS = "orcSIM_Poisson.fitted.values")
+```
+
+
+We will repeat the steps above for the doubly constrained model:
+
+```{r}
+df <- as.data.frame(dbcSIM_Poisson$fitted.values) %>%
+  round(digits = 0)
+```
+
+```{r}
+inter_zonal_flow <- inter_zonal_flow %>%
+  cbind(df) %>%
+  rename(dbcTRIPS = "dbcSIM_Poisson.fitted.values")
+```
+
+
+Next, we will plot two scatterplots:
+
+
+```{r}
+orc_p <- ggplot(data = inter_zonal_flow,
+                aes(x = orcTRIPS,
+                    y = TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim = c(0, 150000),
+                  ylim = c(0, 150000))
+
+dbc_p <- ggplot(data = inter_zonal_flow,
+                aes(x = dbcTRIPS,
+                    y = TRIPS)) +
+  geom_point() +
+  geom_smooth(method = lm) +
+  coord_cartesian(xlim = c(0, 150000),
+                  ylim = c(0, 150000))
+```
+
+
+We will complete the visualisation by plotting both plots side-by-side:
+
+
+```{r}
+ggarrange(orc_p, dbc_p,
+          ncol = 2,
+          nrow = 1)
+```
+

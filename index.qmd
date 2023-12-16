@@ -1,7 +1,7 @@
 ---
-title: "ISSS624"
+title: "Noel's Geospatial Analytics Journey (ISSS624)"
 ---
 
-Welcome to ISSS624 Geospatial Analytics Application!
+Welcome to Noel's ISSS624 website!
 
-I will share with you my learning journey in Geospatial Analytics in this webpage :)
+This website documents my 5-weeks learning journey in Geospatial Analytics in this webpage :)

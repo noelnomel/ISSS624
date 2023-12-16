@@ -16,6 +16,12 @@ This exercise is a continuation of in-class exercises 3 and 4.
 
 # 2. Getting Started
 
+Install development version of the `spflow` package:
+```{r}
+#| eval: false
+devtools::install_github("LukeCe/spflow")
+```
+
 We will use the following R packages in this exercise:
 
 -   `spflow` for spatial econometric interaction modelling
