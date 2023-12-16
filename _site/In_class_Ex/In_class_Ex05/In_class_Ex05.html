@@ -210,6 +210,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#model-calibration" id="toc-model-calibration" class="nav-link" data-scroll-target="#model-calibration">6. Model Calibration</a>
   <ul class="collapse">
   <li><a href="#base-model" id="toc-base-model" class="nav-link" data-scroll-target="#base-model">6.1. Base Model</a></li>
+  <li><a href="#residual-diagnostics" id="toc-residual-diagnostics" class="nav-link" data-scroll-target="#residual-diagnostics">6.2. Residual Diagnostics</a></li>
+  <li><a href="#model-control" id="toc-model-control" class="nav-link" data-scroll-target="#model-control">Model Control</a></li>
+  <li><a href="#bayesian-markov-chain-monte-carlo-mcmc" id="toc-bayesian-markov-chain-monte-carlo-mcmc" class="nav-link" data-scroll-target="#bayesian-markov-chain-monte-carlo-mcmc">6.3. Bayesian Markov Chain Monte Carlo (MCMC)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -542,6 +545,89 @@ Observations: 97969
 Model coherence: Validated</code></pre>
 </div>
 </div>
+</section>
+<section id="residual-diagnostics" class="level2">
+<h2 class="anchored" data-anchor-id="residual-diagnostics">6.2. Residual Diagnostics</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>old_par <span class="ot">&lt;-</span> <span class="fu">par</span>(<span class="at">mfrow =</span> <span class="fu">c</span>(<span class="dv">1</span>,<span class="dv">3</span>),</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>               <span class="at">mar =</span> <span class="fu">c</span>(<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>,<span class="dv">2</span>))</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a><span class="fu">spflow_moran_plots</span>(base_model)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="In_class_Ex05_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+<p>Closer to the zero line means lesser spatial autocorrelation.</p>
+<p>Next, we use <code>pair_cor()</code> to inspect the relationship of the residual and explanatory variables:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>corr_residual <span class="ot">&lt;-</span> <span class="fu">pair_cor</span>(base_model)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(corr_residual) <span class="ot">&lt;-</span> <span class="fu">substr</span>(<span class="fu">colnames</span>(corr_residual),<span class="dv">1</span>,<span class="dv">3</span>)</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cor_image</span>(corr_residual)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<p><img src="In_class_Ex05_files/figure-html/unnamed-chunk-12-1.png" class="img-fluid" width="672"></p>
+</div>
+</div>
+</section>
+<section id="model-control" class="level2">
+<h2 class="anchored" data-anchor-id="model-control">Model Control</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>spflow_formula <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> TRIPS) <span class="sc">~</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">O_</span>(BUSSTOP_COUNT <span class="sc">+</span></span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>         AGE25_64) <span class="sc">+</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">D_</span>(SCHOOL_COUNT <span class="sc">+</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>         BUSINESS_COUNT <span class="sc">+</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>         RETAILS_COUNT <span class="sc">+</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>         FINSERV_COUNT) <span class="sc">+</span></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a>    <span class="fu">P_</span>(<span class="fu">log</span>(DISTANCE <span class="sc">+</span> <span class="dv">1</span>))</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>model_control <span class="ot">&lt;-</span> <span class="fu">spflow_control</span>(</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_method =</span> <span class="st">"mle"</span>,</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>  <span class="at">model =</span> <span class="st">"model_8"</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a>mle_model8 <span class="ot">&lt;-</span> <span class="fu">spflow</span>(</span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a>  spflow_formula,</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">spflow_networks =</span> mpsz_multi_net,</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">estimation_control =</span> model_control</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>mle_model8</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>--------------------------------------------------
+Spatial interaction model estimated by: MLE  
+Spatial correlation structure: SDM (model_8)
+Dependent variable: log(1 + TRIPS)
+
+--------------------------------------------------
+Coefficients:
+                          est     sd    t.stat  p.val
+rho_d                   0.689  0.003   196.832  0.000
+rho_o                   0.687  0.004   192.214  0.000
+rho_w                  -0.473  0.003  -142.469  0.000
+(Intercept)             1.086  0.049    22.275  0.000
+(Intra)                 0.840  0.075    11.255  0.000
+D_SCHOOL_COUNT          0.019  0.002     8.896  0.000
+D_SCHOOL_COUNT.lag1     0.019  0.004     5.130  0.000
+D_BUSINESS_COUNT        0.000  0.000     3.328  0.001
+D_BUSINESS_COUNT.lag1   0.000  0.000     1.664  0.096
+D_RETAILS_COUNT         0.000  0.000    -0.414  0.679
+D_RETAILS_COUNT.lag1    0.000  0.000    -0.171  0.864
+D_FINSERV_COUNT         0.002  0.000     6.150  0.000
+D_FINSERV_COUNT.lag1   -0.003  0.001    -4.601  0.000
+O_BUSSTOP_COUNT         0.003  0.000     7.676  0.000
+O_BUSSTOP_COUNT.lag1    0.000  0.000     0.552  0.581
+O_AGE25_64              0.000  0.000     6.870  0.000
+O_AGE25_64.lag1         0.000  0.000    -0.462  0.644
+P_log(DISTANCE + 1)    -0.125  0.005   -22.865  0.000
+
+--------------------------------------------------
+R2_corr: 0.6965974  
+Observations: 97969  
+Model coherence: Validated</code></pre>
+</div>
+</div>
+<p>Model 8 brings out intrazonal flows to examine its influence on commuter flows.</p>
+</section>
+<section id="bayesian-markov-chain-monte-carlo-mcmc" class="level2">
+<h2 class="anchored" data-anchor-id="bayesian-markov-chain-monte-carlo-mcmc">6.3. Bayesian Markov Chain Monte Carlo (MCMC)</h2>
 
 
 </section>

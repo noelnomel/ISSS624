@@ -156,6 +156,55 @@ base_model <- spflow(
 base_model
 ```
 
+## 6.2. Residual Diagnostics
+
+```{r}
+old_par <- par(mfrow = c(1,3),
+               mar = c(2,2,2,2))
+spflow_moran_plots(base_model)
+```
+
+Closer to the zero line means lesser spatial autocorrelation.
+
+Next, we use `pair_cor()` to inspect the relationship of the residual and explanatory variables:
+```{r}
+corr_residual <- pair_cor(base_model)
+colnames(corr_residual) <- substr(colnames(corr_residual),1,3)
+cor_image(corr_residual)
+```
+
+## Model Control
+
+```{r}
+spflow_formula <- log(1 + TRIPS) ~
+  O_(BUSSTOP_COUNT +
+         AGE25_64) +
+    D_(SCHOOL_COUNT +
+         BUSINESS_COUNT +
+         RETAILS_COUNT +
+         FINSERV_COUNT) +
+    P_(log(DISTANCE + 1))
+
+model_control <- spflow_control(
+  estimation_method = "mle",
+  model = "model_8")
+
+mle_model8 <- spflow(
+  spflow_formula,
+  spflow_networks = mpsz_multi_net,
+  estimation_control = model_control
+)
+  
+mle_model8
+```
+Model 8 brings out intrazonal flows to examine its influence on commuter flows.
+
+
+## 6.3. Bayesian Markov Chain Monte Carlo (MCMC)
+
+
+
+
 
 
 
