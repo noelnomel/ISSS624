@@ -1,5 +1,5 @@
 ---
-title: "In-class Exercise 4"
+title: "In-class Exercise 4: Geocoding and Calibrating Spatial Interaction Models"
 date: "9 December 2023"
 date-modified: "last-modified"
 format: html
@@ -13,7 +13,7 @@ editor: visual
 # Overview
 In this in-class exercise, we will do the following:
 - performing geocoding using data downloaded from data.gov.sg
-- calibrating 
+- calibrating Spatial Interaction Models
 
 # Getting Started
 ```{r}

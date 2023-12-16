@@ -1,5 +1,5 @@
 ---
-title: "In-Class Exercise 5"
+title: "In-Class Exercise 5: Spatial Econometric Interaction Models"
 date: "16 December 2023"
 date-modified: "last-modified"
 format: html
@@ -28,7 +28,35 @@ We will use the following R packages in this exercise:
 
 ```{r}
 pacman::p_load(spflow, tmap, sf, spdep, sp,
-               Matrix, reshape2, tidyverse)
+               Matrix, reshape2, tidyverse, readr)
 ```
 
 # 3. The Data
+
+Three datasets are required before Spatial Econometric Interaction Models can be calibrated:
+1. spatial weights
+2. tibble data.frame with origin, destination, flows and distances between origin and destination
+3. tibble data.frame with explanatory variables
+
+We will load the datasets into the R environment using the following codes:
+
+```{r}
+mpsz_nb <- read_rds("data/rds/mpsz_nb.rds")
+```
+
+```{r}
+od_data <- read_rds("data/rds/od_data.rds")
+```
+
+```{r}
+odbus6_9 <- read_rds("data/rds/odbus6_9.rds")
+```
+::: {.callout-note}
+#### Learn from the above
+
+
+
+
+
+
+
