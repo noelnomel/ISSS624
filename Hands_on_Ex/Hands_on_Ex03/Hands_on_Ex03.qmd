@@ -184,6 +184,8 @@ od_data <- od_data %>%
   drop_na() %>%
   group_by(ORIGIN_SZ, DESTIN_SZ) %>%
   summarise(AM_PEAK = sum(TRIPS))
+
+od_data
 ```
 
 Save the output in rds format for future use:
@@ -194,7 +196,7 @@ write_rds(od_data, "data/rds/od_data.rds")
 
 # 5. Visualising Spatial Interaction
 
-We will prepare a desired line using the `stplanr` package.
+We will prepare a desire line using the `stplanr` package.
 
 ## 5.1. Removing Intra-zonal Flows
 

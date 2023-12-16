@@ -177,9 +177,10 @@ flow_data1 <- flow_data %>%
   left_join(dist_pair, 
             by = c("ORIGIN_SZ" = "orig",
                    "DESTIN_SZ" = "dest"))
+flow_data1
 ```
 
-# 6. Prerparing Origin and Destination Attributes
+# 6. Preparing Origin and Destination Attributes
 
 ## 6.1. Importing Population Data
 ```{r}
@@ -337,7 +338,7 @@ calc_Rsquared(uncSIM$data$TRIPS, uncSIM$fitted.values)
 r2_mcfadden(uncSIM)
 ```
 
-## 7.6. ORigin (Production) Constrained SIM
+## 7.6. Origin (Production) Constrained SIM
 We will fit an origin constrained SIM by using the following code:
 
 ```{r}
@@ -390,6 +391,7 @@ dbcSIM <- glm(formula = TRIPS ~
               data = SIM_data,
               na.action = na.exclude)
 
+options(max.print = 999999)
 summary(dbcSIM)
 ```
 
@@ -416,7 +418,7 @@ compare_performance(model_list,
 
 The results show that the doubly constrained SIM is the best model among the four as it has the lowest RMSE value of 1487.111.
 
-## 7.10. Visuslising Fitted
+## 7.10. Visuslising Fitted Values
 We will visualise the observed and fitted values. First, we will extract the fitted values from each model using the following code:
 
 ```{r}

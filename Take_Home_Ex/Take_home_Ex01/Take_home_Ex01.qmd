@@ -19,7 +19,7 @@ In this take-home exercise, we will examine the spatial and spatio-temporal mobi
 We will use the following data sets for this exercise:
 
 | S/N | Name of Data Set                                 | File type | Source                                                                            | Extracted to (file directory) |
-|------------|-------------|------------|-------------------------|------------|
+|-----|--------------------------------------------------|-----------|-----------------------------------------------------------------------------------|-------------------------------|
 | 1   | Master Plan 2019 Subzone Boundary (Web)          | SHP       | [data.gov.sg](https://data.gov.sg/)                                               | /data/geospatial              |
 | 2   | Bus Stop Location                                | SHP       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/geospatial              |
 | 3   | Passenger Volume by Origin Destination Bus Stops | csv       | [LTA DataMall](https://www.mytransport.sg/content/mytransport/home/dataMall.html) | /data/aspatial                |
