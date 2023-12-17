@@ -481,7 +481,7 @@ tm_shape() +
            n = 6,
            alpha = 0.2,
            col = "trips") +
-tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) 47 to 214 trips",
+tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) 47   to 214 trips",
           main.title.position = "center",
           main.title.size = 1)
 ```
@@ -523,7 +523,7 @@ tm_shape() +
            style = "quantile",
            scale = c(0.1,1,3,5,7,15),
            n = 6,
-           alpha = 1,
+           alpha = 0.2,
            col = "trips") +
 tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) > 214 trips",
           main.title.position = "center",
