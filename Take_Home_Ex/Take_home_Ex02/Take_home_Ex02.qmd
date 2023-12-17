@@ -478,7 +478,7 @@ Lastly, we will visualise flow lines with more than or equal to 214 trips record
 ```{r}
 #| code-fold: true
 #| code-summary: "Show the code"
-tmap_mode("view")
+tmap_mode("plot")
 tmap_options(check.and.fix = TRUE)
 
 # plot hexagon layer
@@ -509,12 +509,8 @@ tm_shape() +
            scale = c(0.1,1,3,5,7,15),
            n = 6,
            alpha = 1,
-           col = "trips")+
+           col = "trips")
 
-# set zoom limits for the interactive map
-tm_view(set.zoom.limits = c(11,14))
-
-tmap_mode("plot")
 ```
 
 Clearer commuter patterns can be deciphered from this visualisation. It is observed that there are a few nodes where commuter flows converge at. Some of these nodes can be found at Woodlands, Punggol, Tampines, Paya Lebar, Clementi, Jurong East and Jurong West. Based on the map parameters, the largest trip numbers are scaled up by a factor of 15, and these are seen as thicker lines on the map. It can be observed that the thicker flow lines tend to be shorter trips that span the distance of about two to three grids. However, there are two longer-distance flow lines with high trip numbers that can be observed from the map, the first is flows between Woodlands and Punggol, and the second is flows between Punggol and Tampines.
