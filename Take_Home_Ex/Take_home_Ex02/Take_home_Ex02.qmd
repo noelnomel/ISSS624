@@ -281,7 +281,10 @@ flow_line%>%
            style = "quantile",
            scale = c(0.1,1,3,5,7,10),
            n = 6,
-           alpha = 0.3) 
+           alpha = 0.3) +
+tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023)",
+          main.title.position = "center",
+          main.title.size = 1)
 ```
 
 However, there is a large number of records found in `flow_line` (49,890), resulting in many overlapping lines on the map. This makes visualising the commuter flow difficult as patterns cannot be observed.
@@ -343,7 +346,7 @@ tm_shape(mpsz2019) +
 
 # plot flow lines
 flow_line %>%
-  # where trips are greater than or equal to 214
+  # where trips are between 1 to 10
   filter(trips >= 1 & trips <= 10) %>%
 tm_shape() +
   tm_lines(lwd = "trips",
@@ -351,7 +354,10 @@ tm_shape() +
            scale = c(0.1,1,3,5,7,10),
            n = 6,
            alpha = 0.2,
-           col = 'trips')
+           col = 'trips') +
+tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) 1 to 10 trips",
+          main.title.position = "center",
+          main.title.size = 1)
 ```
 
 Focusing on flow lines with 1 to 10 trips recorded, not much pattern can be observed from the visualisation as most of the flow lines criss-cross or converge near each other in the southern-central region of Singapore. It appears that there is a lot of randomness in the travel patterns of flow lines with less trips recorded. Perhaps flow lines with low trip numbers recorded are due to trips taken for extra-ordinary reasons that are outside of an individual's routine or habits.
@@ -388,12 +394,15 @@ flow_line %>%
   filter(trips == 1) %>%
 tm_shape() +
   tm_lines(lwd = "trips",
-           alpha = 0.2)
+           alpha = 0.2) +
+tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) 1 trip",
+          main.title.position = "center",
+          main.title.size = 1)
 ```
 
 We can observe more clearly that flow lines with only one trip recorded tend to cross paths or converge at the southern-central region. Higher number of flows are observed between the western, eastern, and central regions of Singapore. Some flow lines are also observed in the outskirt regions of Singapore in Lim Chu Kang and Tuas.
 
-Next, we will visualise flow lines with 10 to 46 trips recorded:
+Next, we will visualise flow lines with 11 to 46 trips recorded:
 
 ```{r}
 #| code-fold: true
@@ -421,18 +430,21 @@ tm_shape(mpsz2019) +
 
 # plot flow lines
 flow_line %>%
-  # where trips are between 10 and 46
-  filter(trips >= 10 & trips <= 46) %>%
+  # where trips are between 11 and 46
+  filter(trips >= 11 & trips <= 46) %>%
 tm_shape() +
   tm_lines(lwd = "trips",
            style = "quantile",
            scale = c(0.1,1,3,5,7,10),
            n = 6,
            alpha = 0.2,
-           col = "trips")
+           col = "trips") +
+tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) 11 to 46 trips",
+          main.title.position = "center",
+          main.title.size = 1)
 ```
 
-Next, we will visualise flow lines with 46 to 214 trips recorded:
+Next, we will visualise flow lines with 47 to 214 trips recorded:
 
 ```{r}
 #| code-fold: true
@@ -460,20 +472,23 @@ tm_shape(mpsz2019) +
 
 # plot flow lines
 flow_line %>%
-  # where trips are between 46 and 214
-  filter(trips >= 46 & trips <= 214) %>%
+  # where trips are between 47 and 214
+  filter(trips >= 47 & trips <= 214) %>%
 tm_shape() +
   tm_lines(lwd = "trips",
            style = "quantile",
            scale = c(0.1,1,3,5,7,10),
            n = 6,
            alpha = 0.2,
-           col = "trips") 
+           col = "trips") +
+tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) 47 to 214 trips",
+          main.title.position = "center",
+          main.title.size = 1)
 ```
 
 Not much commuter flow patterns can be deciphered from both visualisations of 10 to 46 trips and 46 to 214 trips. Many of the flow lines were overlapping around the southern-central region. However, some flows can be observed between the northern and central regions, eastern and central regions, and western to central regions of Singapore from both visualisations.
 
-Lastly, we will visualise flow lines with more than or equal to 214 trips recorded:
+Lastly, we will visualise flow lines with more than 214 trips recorded:
 
 ```{r}
 #| code-fold: true
@@ -501,15 +516,18 @@ tm_shape(mpsz2019) +
 
 # plot flow lines
 flow_line %>%
-  # where trips are greater than or equal to 214
-  filter(trips >= 214) %>%
+  # where trips are greater than 214
+  filter(trips >= 215) %>%
 tm_shape() +
   tm_lines(lwd = "trips",
            style = "quantile",
            scale = c(0.1,1,3,5,7,15),
            n = 6,
            alpha = 1,
-           col = "trips")
+           col = "trips") +
+tm_layout(main.title = "Flow Lines of Bus Trips During Weekday PM Peak (Oct 2023) > 214 trips",
+          main.title.position = "center",
+          main.title.size = 1)
 
 ```
 
