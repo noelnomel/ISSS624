@@ -211,8 +211,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul class="collapse">
   <li><a href="#base-model" id="toc-base-model" class="nav-link" data-scroll-target="#base-model">6.1. Base Model</a></li>
   <li><a href="#residual-diagnostics" id="toc-residual-diagnostics" class="nav-link" data-scroll-target="#residual-diagnostics">6.2. Residual Diagnostics</a></li>
-  <li><a href="#model-control" id="toc-model-control" class="nav-link" data-scroll-target="#model-control">Model Control</a></li>
-  <li><a href="#bayesian-markov-chain-monte-carlo-mcmc" id="toc-bayesian-markov-chain-monte-carlo-mcmc" class="nav-link" data-scroll-target="#bayesian-markov-chain-monte-carlo-mcmc">6.3. Bayesian Markov Chain Monte Carlo (MCMC)</a></li>
+  <li><a href="#model-control" id="toc-model-control" class="nav-link" data-scroll-target="#model-control">6.3. Model Control</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -240,7 +239,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <div>
     <div class="quarto-title-meta-heading">Modified</div>
     <div class="quarto-title-meta-contents">
-      <p class="date-modified">December 16, 2023</p>
+      <p class="date-modified">December 17, 2023</p>
     </div>
   </div>
     
@@ -340,7 +339,6 @@ $ FB_COUNT       &lt;int&gt; 4, 38, 4, 0, 38, 15, 5, 0, 20, 0, 9, 25, 0, 0, 9, 1
 $ LR_COUNT       &lt;int&gt; 3, 11, 7, 0, 20, 0, 0, 0, 19, 2, 4, 4, 1, 1, 13, 0, 17,…</code></pre>
 </div>
 </div>
-<p>::: {.callout-note} #### Learn from the above</p>
 </section>
 <section id="creating-spflow_network-class-objects" class="level1">
 <h1>4. Creating <code>spflow_network-class</code> Objects</h1>
@@ -442,7 +440,7 @@ Data on node-pairs:
 97969    TSSZ06    TSSZ06        0   270</code></pre>
 </div>
 </div>
-<p>Lastly, we will use <code>spflow_network_multi()</code> to combine the network class and pair class:</p>
+<p>Lastly, we will use <code>spflow_network_multi()</code> to combine the network class and pair class to contain information on the node and node-pairs:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>mpsz_multi_net <span class="ot">&lt;-</span> <span class="fu">spflow_network_multi</span>(</span>
 <span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  mpsz_net,mpsz_net_pairs)</span>
@@ -520,24 +518,24 @@ Dependent variable: log(1 + TRIPS)
 --------------------------------------------------
 Coefficients:
                           est     sd   t.stat  p.val
-rho_d                   0.680  0.004  192.556  0.000
+rho_d                   0.680  0.004  192.554  0.000
 rho_o                   0.678  0.004  187.733  0.000
-rho_w                  -0.396  0.006  -65.591  0.000
-(Intercept)             0.410  0.065    6.265  0.000
-(Intra)                 1.313  0.081   16.263  0.000
+rho_w                  -0.396  0.006  -65.592  0.000
+(Intercept)             0.410  0.065    6.267  0.000
+(Intra)                 1.312  0.081   16.262  0.000
 D_SCHOOL_COUNT          0.017  0.002    7.885  0.000
-D_SCHOOL_COUNT.lag1     0.002  0.004    0.551  0.582
+D_SCHOOL_COUNT.lag1     0.002  0.004    0.552  0.581
 D_BUSINESS_COUNT        0.000  0.000    3.015  0.003
-D_BUSINESS_COUNT.lag1   0.000  0.000   -0.249  0.803
+D_BUSINESS_COUNT.lag1   0.000  0.000   -0.249  0.804
 D_RETAILS_COUNT         0.000  0.000   -0.306  0.759
 D_RETAILS_COUNT.lag1    0.000  0.000    0.152  0.880
 D_FINSERV_COUNT         0.002  0.000    6.787  0.000
 D_FINSERV_COUNT.lag1   -0.002  0.001   -3.767  0.000
-O_BUSSTOP_COUNT         0.002  0.000    6.806  0.000
+O_BUSSTOP_COUNT         0.002  0.000    6.807  0.000
 O_BUSSTOP_COUNT.lag1   -0.001  0.000   -2.364  0.018
 O_AGE25_64              0.000  0.000    7.336  0.000
 O_AGE25_64.lag1         0.000  0.000   -2.797  0.005
-P_log(DISTANCE + 1)    -0.050  0.007   -6.792  0.000
+P_log(DISTANCE + 1)    -0.050  0.007   -6.794  0.000
 
 --------------------------------------------------
 R2_corr: 0.6942948  
@@ -569,7 +567,7 @@ Model coherence: Validated</code></pre>
 </div>
 </section>
 <section id="model-control" class="level2">
-<h2 class="anchored" data-anchor-id="model-control">Model Control</h2>
+<h2 class="anchored" data-anchor-id="model-control">6.3. Model Control</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>spflow_formula <span class="ot">&lt;-</span> <span class="fu">log</span>(<span class="dv">1</span> <span class="sc">+</span> TRIPS) <span class="sc">~</span></span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">O_</span>(BUSSTOP_COUNT <span class="sc">+</span></span>
@@ -638,9 +636,6 @@ Model coherence: Validated</code></pre>
 <pre><code>NULL</code></pre>
 </div>
 </div>
-</section>
-<section id="bayesian-markov-chain-monte-carlo-mcmc" class="level2">
-<h2 class="anchored" data-anchor-id="bayesian-markov-chain-monte-carlo-mcmc">6.3. Bayesian Markov Chain Monte Carlo (MCMC)</h2>
 
 
 </section>

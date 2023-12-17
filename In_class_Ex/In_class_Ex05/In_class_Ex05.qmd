@@ -97,20 +97,6 @@ mpsz_multi_net <- spflow_network_multi(
 mpsz_multi_net
 ```
 
-We can visualise use `spflow_map()` to visualise the largest flows:
-
-```{r}
-plot(mpsz$geometry)
-spflow_map(
-  mpsz_multi_net,
-  flow_var = "TRIPS",
-  add = TRUE, 
-  legend_position = "bottomleft",
-  filter_lowest = .999, 
-  remove_intra = TRUE,
-  cex = 1)
-```
-
 # 5. Correlation Analysis
 
 When building explanatory models, it is important to check for multicollinearity to avoid including variables that are highly correlated to each other.
